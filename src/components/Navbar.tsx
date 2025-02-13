@@ -7,13 +7,23 @@ import { Search, User } from "lucide-react";
 export const Navbar = () => {
   return (
     <nav className="border-b">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex flex-col py-4 md:h-16 md:flex-row md:items-center md:justify-between">
         <Link to="/" className="text-2xl font-semibold tracking-tight">
           RecipeHaven
         </Link>
         
-        <div className="flex items-center space-x-4">
-          <div className="relative w-96">
+        <div className="mt-4 flex flex-wrap items-center gap-4 md:mt-0">
+          <Link to="/indian-recipes" className="text-sm font-medium hover:text-primary">
+            Indian Recipes
+          </Link>
+          <Link to="/popular-recipes" className="text-sm font-medium hover:text-primary">
+            Popular
+          </Link>
+          <Link to="/new-recipes" className="text-sm font-medium hover:text-primary">
+            New
+          </Link>
+          
+          <div className="relative w-full md:w-96">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search recipes..."

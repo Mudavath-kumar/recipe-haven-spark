@@ -11,6 +11,9 @@ import RecipeDetail from "./pages/RecipeDetail";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
+import IndianRecipes from "./pages/IndianRecipes";
+import PopularRecipes from "./pages/PopularRecipes";
+import NewRecipes from "./pages/NewRecipes";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +29,9 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/recipe/:id" element={<RecipeDetail />} />
+              <Route path="/indian-recipes" element={<IndianRecipes />} />
+              <Route path="/popular-recipes" element={<PopularRecipes />} />
+              <Route path="/new-recipes" element={<NewRecipes />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="*" element={<NotFound />} />
