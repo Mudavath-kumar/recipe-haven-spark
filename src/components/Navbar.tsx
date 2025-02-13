@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, User, Cube, Video } from "lucide-react";
+import { Search, User, Box, Video } from "lucide-react";
 
 export const Navbar = () => {
   return (
@@ -23,7 +23,7 @@ export const Navbar = () => {
             New
           </Link>
           <Link to="/3d-food" className="text-sm font-medium hover:text-primary flex items-center gap-1">
-            <Cube className="h-4 w-4" />
+            <Box className="h-4 w-4" />
             3D Food
           </Link>
           <Link to="/food-videos" className="text-sm font-medium hover:text-primary flex items-center gap-1">
