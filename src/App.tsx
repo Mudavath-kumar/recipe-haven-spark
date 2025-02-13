@@ -14,6 +14,8 @@ import NotFound from "./pages/NotFound";
 import IndianRecipes from "./pages/IndianRecipes";
 import PopularRecipes from "./pages/PopularRecipes";
 import NewRecipes from "./pages/NewRecipes";
+import FoodModel3D from "./pages/FoodModel3D";
+import FoodVideos from "./pages/FoodVideos";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +34,8 @@ const App = () => (
               <Route path="/indian-recipes" element={<IndianRecipes />} />
               <Route path="/popular-recipes" element={<PopularRecipes />} />
               <Route path="/new-recipes" element={<NewRecipes />} />
+              <Route path="/3d-food" element={<FoodModel3D />} />
+              <Route path="/food-videos" element={<FoodVideos />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="*" element={<NotFound />} />
