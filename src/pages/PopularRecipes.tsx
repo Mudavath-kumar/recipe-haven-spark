@@ -1,6 +1,8 @@
 
 import { RecipeCard } from "@/components/RecipeCard";
 import { MOCK_RECIPES } from "@/lib/mock-data";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const PopularRecipes = () => {
   // For demonstration, we'll take the first 6 recipes as "popular"
