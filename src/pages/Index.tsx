@@ -24,22 +24,26 @@ const Index = () => {
 
   return (
     <div className="space-y-8">
-      <section className="space-y-4">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Featured Recipes</h1>
-          <p className="text-muted-foreground">
-            Discover our curated collection of delicious recipes
+      <section className="relative py-20 px-4 md:px-6 bg-gradient-to-r from-recipe-100 to-recipe-200 rounded-3xl overflow-hidden">
+        <div className="max-w-4xl mx-auto text-center space-y-4">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight font-playfair text-recipe-900">
+            Discover Your Next Favorite Recipe
+          </h1>
+          <p className="text-lg md:text-xl text-recipe-700 font-poppins">
+            Explore our curated collection of delicious recipes from around the world
           </p>
         </div>
+      </section>
 
-        <div className="flex items-center gap-4">
+      <section className="space-y-8 px-4 md:px-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-full md:w-48 font-poppins">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
               {categories.map((cat) => (
-                <SelectItem key={cat} value={cat}>
+                <SelectItem key={cat} value={cat} className="font-poppins">
                   {cat.charAt(0).toUpperCase() + cat.slice(1)}
                 </SelectItem>
               ))}
@@ -47,7 +51,7 @@ const Index = () => {
           </Select>
         </div>
         
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentRecipes.map((recipe) => (
             <RecipeCard key={recipe.id} {...recipe} />
           ))}
@@ -59,6 +63,7 @@ const Index = () => {
               variant="outline"
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
+              className="font-poppins"
             >
               Previous
             </Button>
@@ -67,6 +72,7 @@ const Index = () => {
                 key={i + 1}
                 variant={page === i + 1 ? "default" : "outline"}
                 onClick={() => setPage(i + 1)}
+                className="font-poppins"
               >
                 {i + 1}
               </Button>
@@ -75,6 +81,7 @@ const Index = () => {
               variant="outline"
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
+              className="font-poppins"
             >
               Next
             </Button>

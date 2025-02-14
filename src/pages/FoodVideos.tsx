@@ -31,8 +31,8 @@ const FoodVideos = () => {
               allowFullScreen
             />
             <div className="absolute bottom-8 left-8 text-white z-10">
-              <h2 className="text-4xl font-bold mb-2">{video.title}</h2>
-              <div className="bg-black/50 px-4 py-2 rounded-full inline-block">
+              <h2 className="text-4xl font-bold mb-2 font-playfair">{video.title}</h2>
+              <div className="bg-black/50 px-4 py-2 rounded-full inline-block font-poppins">
                 Scroll for more videos
               </div>
             </div>
