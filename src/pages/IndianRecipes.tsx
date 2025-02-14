@@ -4,8 +4,17 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 
+interface Recipe {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  cooking_time: number | null;
+  category: string;
+}
+
 const IndianRecipes = () => {
-  const { data: indianRecipes, isLoading } = useQuery({
+  const { data: indianRecipes, isLoading } = useQuery<Recipe[]>({
     queryKey: ['recipes', 'indian'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -18,7 +27,7 @@ const IndianRecipes = () => {
         throw error;
       }
       
-      return data;
+      return data || [];
     }
   });
 
@@ -58,12 +67,12 @@ const IndianRecipes = () => {
           {indianRecipes?.map((recipe) => (
             <RecipeCard 
               key={recipe.id} 
-              id={recipe.id} 
+              id={parseInt(recipe.id, 10) || 0}  // Convert string ID to number
               title={recipe.title}
               description={recipe.description || ''}
               image={recipe.image_url || '/placeholder.svg'}
               time={`${recipe.cooking_time || 0} mins`}
-              servings={4} // This should come from the database, for now using a default
+              servings={4}
               category="Indian"
             />
           ))}
