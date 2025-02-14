@@ -3,17 +3,15 @@ import { RecipeCard } from "@/components/RecipeCard";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Database } from "@/integrations/supabase/types";
 
-interface Recipe {
-  id: string;
-  title: string;
-  description: string | null;
-  image_url: string | null;
-  cooking_time: number | null;
+type DbRecipe = Database['public']['Tables']['recipes']['Row'];
+
+interface Recipe extends Omit<DbRecipe, 'category'> {
   category: string;
 }
 
-const fetchIndianRecipes = async (): Promise<Recipe[]> => {
+const fetchIndianRecipes = async () => {
   const { data, error } = await supabase
     .from('recipes')
     .select('*')
@@ -25,12 +23,10 @@ const fetchIndianRecipes = async (): Promise<Recipe[]> => {
   }
   
   // Transform the data to include the category
-  const recipes = (data || []).map(recipe => ({
+  return (data || []).map(recipe => ({
     ...recipe,
-    category: 'Indian' // Add the category field explicitly
-  })) as Recipe[];
-  
-  return recipes;
+    category: 'Indian'
+  }));
 };
 
 const IndianRecipes = () => {
@@ -75,7 +71,7 @@ const IndianRecipes = () => {
           {(indianRecipes || []).map((recipe) => (
             <RecipeCard 
               key={recipe.id} 
-              id={parseInt(recipe.id, 10) || 0}  // Convert string ID to number
+              id={parseInt(recipe.id, 10) || 0}
               title={recipe.title}
               description={recipe.description || ''}
               image={recipe.image_url || '/placeholder.svg'}
