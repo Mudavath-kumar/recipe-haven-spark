@@ -14,9 +14,9 @@ interface Recipe {
 }
 
 const IndianRecipes = () => {
-  const { data: indianRecipes, isLoading } = useQuery<Recipe[]>({
+  const { data: indianRecipes, isLoading } = useQuery({
     queryKey: ['recipes', 'indian'],
-    queryFn: async () => {
+    queryFn: async (): Promise<Recipe[]> => {
       const { data, error } = await supabase
         .from('recipes')
         .select('*')
@@ -27,7 +27,13 @@ const IndianRecipes = () => {
         throw error;
       }
       
-      return data || [];
+      // Transform the data to include the category
+      const recipes = (data || []).map(recipe => ({
+        ...recipe,
+        category: 'Indian' // Add the category field explicitly
+      })) as Recipe[];
+      
+      return recipes;
     }
   });
 
@@ -64,7 +70,7 @@ const IndianRecipes = () => {
         </div>
         
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {indianRecipes?.map((recipe) => (
+          {(indianRecipes || []).map((recipe) => (
             <RecipeCard 
               key={recipe.id} 
               id={parseInt(recipe.id, 10) || 0}  // Convert string ID to number
@@ -76,7 +82,7 @@ const IndianRecipes = () => {
               category="Indian"
             />
           ))}
-          {indianRecipes?.length === 0 && (
+          {(!indianRecipes || indianRecipes.length === 0) && (
             <p className="col-span-full text-center text-muted-foreground">
               No Indian recipes found. Be the first to add one!
             </p>
