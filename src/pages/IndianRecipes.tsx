@@ -13,28 +13,30 @@ interface Recipe {
   category: string;
 }
 
+const fetchIndianRecipes = async (): Promise<Recipe[]> => {
+  const { data, error } = await supabase
+    .from('recipes')
+    .select('*')
+    .eq('category', 'Indian');
+  
+  if (error) {
+    console.error('Error fetching Indian recipes:', error);
+    throw error;
+  }
+  
+  // Transform the data to include the category
+  const recipes = (data || []).map(recipe => ({
+    ...recipe,
+    category: 'Indian' // Add the category field explicitly
+  })) as Recipe[];
+  
+  return recipes;
+};
+
 const IndianRecipes = () => {
   const { data: indianRecipes, isLoading } = useQuery({
     queryKey: ['recipes', 'indian'],
-    queryFn: async (): Promise<Recipe[]> => {
-      const { data, error } = await supabase
-        .from('recipes')
-        .select('*')
-        .eq('category', 'Indian');
-      
-      if (error) {
-        console.error('Error fetching Indian recipes:', error);
-        throw error;
-      }
-      
-      // Transform the data to include the category
-      const recipes = (data || []).map(recipe => ({
-        ...recipe,
-        category: 'Indian' // Add the category field explicitly
-      })) as Recipe[];
-      
-      return recipes;
-    }
+    queryFn: fetchIndianRecipes
   });
 
   if (isLoading) {
