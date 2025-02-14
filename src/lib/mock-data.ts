@@ -2,11 +2,28 @@ export const MOCK_RECIPES = [
   {
     id: 1,
     title: "Classic Margherita Pizza",
-    description: "A traditional Italian pizza with fresh basil, mozzarella, and tomatoes",
+    description: "A traditional Italian pizza with fresh basil, mozzarella, and tomatoes. This authentic recipe brings the taste of Naples to your home kitchen.",
     image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
     time: "30 min",
     servings: 4,
     category: "Italian",
+    ingredients: [
+      "2 cups all-purpose flour",
+      "1 cup warm water",
+      "2 1/4 tsp active dry yeast",
+      "Fresh mozzarella",
+      "Fresh basil leaves",
+      "San Marzano tomatoes",
+      "Extra virgin olive oil",
+      "Salt to taste"
+    ],
+    instructions: [
+      "Prepare the pizza dough by mixing flour, yeast, and warm water",
+      "Let the dough rise for 1-2 hours",
+      "Stretch the dough into a circle",
+      "Add tomato sauce, fresh mozzarella, and basil",
+      "Bake at 450°F for 12-15 minutes"
+    ]
   },
   {
     id: 2,
