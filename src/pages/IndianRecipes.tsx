@@ -7,11 +7,7 @@ import { Database } from "@/integrations/supabase/types";
 
 type DbRecipe = Database['public']['Tables']['recipes']['Row'];
 
-interface Recipe extends Omit<DbRecipe, 'category'> {
-  category: string;
-}
-
-const fetchIndianRecipes = async (): Promise<Recipe[]> => {
+const fetchIndianRecipes = async (): Promise<DbRecipe[]> => {
   const { data, error } = await supabase
     .from('recipes')
     .select('*')
@@ -22,14 +18,11 @@ const fetchIndianRecipes = async (): Promise<Recipe[]> => {
     throw error;
   }
   
-  return (data || []).map(recipe => ({
-    ...recipe,
-    category: 'Indian'
-  }));
+  return data || [];
 };
 
 const IndianRecipes = () => {
-  const { data: indianRecipes, isLoading } = useQuery<Recipe[], Error>({
+  const { data: indianRecipes, isLoading } = useQuery<DbRecipe[], Error>({
     queryKey: ['recipes', 'indian'],
     queryFn: fetchIndianRecipes
   });
@@ -70,7 +63,7 @@ const IndianRecipes = () => {
           {(indianRecipes || []).map((recipe) => (
             <RecipeCard 
               key={recipe.id} 
-              id={parseInt(recipe.id, 10) || 0}
+              id={recipe.id}
               title={recipe.title}
               description={recipe.description || ''}
               image={recipe.image_url || '/placeholder.svg'}
