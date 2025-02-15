@@ -23,47 +23,58 @@ const Index = () => {
   );
 
   return (
-    <div className="space-y-8">
-      <section className="relative py-20 px-4 md:px-6 bg-gradient-to-r from-recipe-100 to-recipe-200 rounded-3xl overflow-hidden">
-        <div className="max-w-4xl mx-auto text-center space-y-4">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight font-playfair text-recipe-900">
-            Discover Your Next Favorite Recipe
+    <div className="space-y-12">
+      <section className="relative py-24 px-6 bg-gradient-to-br from-recipe-100 via-recipe-200 to-recipe-300 rounded-3xl overflow-hidden shadow-lg">
+        <div className="absolute inset-0 bg-white/5 backdrop-blur-sm" />
+        <div className="relative max-w-4xl mx-auto text-center space-y-6">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight font-playfair text-recipe-900 animate-in slide-in-from-bottom duration-500">
+            Discover Your Next 
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-recipe-700 to-recipe-900 px-2">
+              Favorite
+            </span>
+            Recipe
           </h1>
-          <p className="text-lg md:text-xl text-recipe-700 font-poppins">
+          <p className="text-xl md:text-2xl text-recipe-700 font-poppins animate-in slide-in-from-bottom duration-500 delay-150">
             Explore our curated collection of delicious recipes from around the world
           </p>
         </div>
       </section>
 
-      <section className="space-y-8 px-4 md:px-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <section className="space-y-10 px-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="w-full md:w-48 font-poppins">
+            <SelectTrigger className="w-full md:w-64 font-poppins bg-white/50 backdrop-blur-sm border-recipe-200">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="font-poppins">
               {categories.map((cat) => (
-                <SelectItem key={cat} value={cat} className="font-poppins">
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                <SelectItem key={cat} value={cat} className="capitalize">
+                  {cat}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {currentRecipes.map((recipe) => (
-            <RecipeCard key={recipe.id} {...recipe} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {currentRecipes.map((recipe, index) => (
+            <div
+              key={recipe.id}
+              className="transform transition-all duration-300 hover:scale-[1.02] animate-in slide-in-from-bottom-4"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <RecipeCard {...recipe} />
+            </div>
           ))}
         </div>
 
         {totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-8">
+          <div className="flex justify-center gap-2 mt-12">
             <Button
               variant="outline"
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="font-poppins"
+              className="font-poppins hover:bg-recipe-100 transition-colors"
             >
               Previous
             </Button>
@@ -72,7 +83,11 @@ const Index = () => {
                 key={i + 1}
                 variant={page === i + 1 ? "default" : "outline"}
                 onClick={() => setPage(i + 1)}
-                className="font-poppins"
+                className={`font-poppins transition-colors ${
+                  page === i + 1 
+                    ? "bg-recipe-700 hover:bg-recipe-800" 
+                    : "hover:bg-recipe-100"
+                }`}
               >
                 {i + 1}
               </Button>
@@ -81,7 +96,7 @@ const Index = () => {
               variant="outline"
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="font-poppins"
+              className="font-poppins hover:bg-recipe-100 transition-colors"
             >
               Next
             </Button>
