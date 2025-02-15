@@ -11,7 +11,7 @@ interface Recipe extends Omit<DbRecipe, 'category'> {
   category: string;
 }
 
-const fetchIndianRecipes = async () => {
+const fetchIndianRecipes = async (): Promise<Recipe[]> => {
   const { data, error } = await supabase
     .from('recipes')
     .select('*')
@@ -22,7 +22,6 @@ const fetchIndianRecipes = async () => {
     throw error;
   }
   
-  // Transform the data to include the category
   return (data || []).map(recipe => ({
     ...recipe,
     category: 'Indian'
@@ -30,7 +29,7 @@ const fetchIndianRecipes = async () => {
 };
 
 const IndianRecipes = () => {
-  const { data: indianRecipes, isLoading } = useQuery({
+  const { data: indianRecipes, isLoading } = useQuery<Recipe[], Error>({
     queryKey: ['recipes', 'indian'],
     queryFn: fetchIndianRecipes
   });
