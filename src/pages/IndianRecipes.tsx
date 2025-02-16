@@ -65,11 +65,11 @@ const IndianRecipes = () => {
               key={recipe.id} 
               id={recipe.id}
               title={recipe.title}
-              description={recipe.description || ''}
+              description={recipe.description || 'No description available'}
               image={recipe.image_url || '/placeholder.svg'}
-              time={`${recipe.cooking_time || 0} mins`}
+              time={`${recipe.cooking_time || 30} mins`}
               servings={4}
-              category="Indian"
+              category={recipe.category || 'Indian'}
             />
           ))}
           {(!indianRecipes || indianRecipes.length === 0) && (

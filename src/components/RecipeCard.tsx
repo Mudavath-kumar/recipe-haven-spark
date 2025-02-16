@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { Clock, Users } from "lucide-react";
 
 interface RecipeCardProps {
-  id: number;
+  id: string | number; // Updated to accept both string (UUID) and number
   title: string;
   description: string;
   image: string;
@@ -28,15 +28,18 @@ export const RecipeCard = ({
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg">
       <div className="relative aspect-video overflow-hidden">
         <img
-          src={image}
+          src={image || '/placeholder.svg'}
           alt={title}
           className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+          onError={(e) => {
+            e.currentTarget.src = '/placeholder.svg';
+          }}
         />
         <Badge className="absolute top-2 right-2 bg-white/90">{category}</Badge>
       </div>
       <CardHeader>
         <CardTitle className="line-clamp-1">{title}</CardTitle>
-        <CardDescription className="line-clamp-2">{description}</CardDescription>
+        <CardDescription className="line-clamp-2">{description || 'No description available'}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
