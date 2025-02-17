@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { Clock, Users } from "lucide-react";
 
 interface RecipeCardProps {
-  id: string | number; // Updated to accept both string (UUID) and number
+  id: string | number;
   title: string;
   description: string;
   image: string;
@@ -14,6 +14,18 @@ interface RecipeCardProps {
   servings: number;
   category: string;
 }
+
+const getPlaceholderImage = (category: string): string => {
+  // Use appropriate Unsplash food images based on category
+  const placeholders: Record<string, string> = {
+    'Indian': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9',
+    'Italian': 'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb',
+    'Chinese': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+    'default': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9'
+  };
+
+  return placeholders[category] || placeholders.default;
+};
 
 export const RecipeCard = ({
   id,
@@ -28,11 +40,11 @@ export const RecipeCard = ({
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg">
       <div className="relative aspect-video overflow-hidden">
         <img
-          src={image || '/placeholder.svg'}
+          src={image || getPlaceholderImage(category)}
           alt={title}
           className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
           onError={(e) => {
-            e.currentTarget.src = '/placeholder.svg';
+            e.currentTarget.src = getPlaceholderImage(category);
           }}
         />
         <Badge className="absolute top-2 right-2 bg-white/90">{category}</Badge>
