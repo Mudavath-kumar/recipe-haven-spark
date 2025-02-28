@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/461b15ac-a105-43bc-a653-fef7ac02bddc
+**URL**: https://preview--recipe-haven-spark.lovable.app/
 
 ## How can I edit this code?
 
