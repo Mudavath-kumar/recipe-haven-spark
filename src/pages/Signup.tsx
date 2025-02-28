@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,6 +48,18 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        navigate("/");
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
+
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -64,7 +75,7 @@ const Signup = () => {
     try {
       setIsLoading(true);
       
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -75,12 +86,15 @@ const Signup = () => {
       });
 
       if (error) {
+        console.error("Signup error:", error);
         toast.error(error.message);
         return;
       }
 
-      toast.success("Account created successfully! Please check your email to verify your account.");
-      navigate("/login");
+      if (authData.user) {
+        toast.success("Account created successfully! Please check your email to verify your account.");
+        navigate("/login");
+      }
     } catch (error) {
       console.error("Signup error:", error);
       toast.error("An unexpected error occurred during signup");

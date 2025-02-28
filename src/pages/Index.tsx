@@ -4,11 +4,14 @@ import { RecipeCard } from "@/components/RecipeCard";
 import { MOCK_RECIPES } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
+import { PlayCircle } from "lucide-react";
 
 const Index = () => {
   const [category, setCategory] = useState<string>("all");
   const [page, setPage] = useState(1);
-  const itemsPerPage = 9;
+  const itemsPerPage = 6;
 
   const categories = ["all", ...new Set(MOCK_RECIPES.map(recipe => recipe.category))];
   
@@ -21,6 +24,27 @@ const Index = () => {
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
+
+  const videos = [
+    {
+      id: 1,
+      title: "Quick & Easy Butter Chicken",
+      thumbnail: "https://img.youtube.com/vi/pqpDYRZ3pYQ/maxresdefault.jpg",
+      url: "/food-videos"
+    },
+    {
+      id: 2,
+      title: "Authentic Biryani Recipe",
+      thumbnail: "https://img.youtube.com/vi/nC5IFSnluZY/maxresdefault.jpg",
+      url: "/food-videos"
+    },
+    {
+      id: 3,
+      title: "Homemade Naan Bread Recipe",
+      thumbnail: "https://img.youtube.com/vi/0n47msSQllA/maxresdefault.jpg",
+      url: "/food-videos"
+    },
+  ];
 
   return (
     <div className="space-y-12">
@@ -37,11 +61,56 @@ const Index = () => {
           <p className="text-xl md:text-2xl text-recipe-700 font-poppins animate-in slide-in-from-bottom duration-500 delay-150">
             Explore our curated collection of delicious recipes from around the world
           </p>
+          <div className="flex justify-center gap-4 pt-4">
+            <Button asChild size="lg" className="bg-recipe-700 hover:bg-recipe-800">
+              <Link to="/indian-recipes">
+                Browse Indian Recipes
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link to="/food-videos">
+                Watch Cooking Videos
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Videos Section */}
+      <section className="space-y-6 px-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold">Featured Videos</h2>
+          <Button asChild variant="ghost">
+            <Link to="/food-videos">View All</Link>
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {videos.map((video) => (
+            <Link key={video.id} to={video.url}>
+              <Card className="overflow-hidden group cursor-pointer transition-all hover:shadow-lg">
+                <div className="relative aspect-video">
+                  <img 
+                    src={video.thumbnail} 
+                    alt={video.title} 
+                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <PlayCircle className="w-16 h-16 text-white" />
+                  </div>
+                </div>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-lg">{video.title}</h3>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
         </div>
       </section>
 
       <section className="space-y-10 px-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <h2 className="text-3xl font-bold">Popular Recipes</h2>
           <Select value={category} onValueChange={setCategory}>
             <SelectTrigger className="w-full md:w-64 font-poppins bg-white/50 backdrop-blur-sm border-recipe-200">
               <SelectValue placeholder="Select category" />
