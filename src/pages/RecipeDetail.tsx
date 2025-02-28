@@ -39,6 +39,19 @@ type DetailedRecipe = {
   category: string;
   instructions: string;
   ingredients: Ingredient[];
+  servings?: number; // Added this property
+};
+
+type MockRecipe = {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  time: string;
+  servings: number;
+  category: string;
+  ingredients?: string[];
+  instructions?: string[];
 };
 
 const RecipeDetail = () => {
@@ -49,7 +62,7 @@ const RecipeDetail = () => {
   const indianRecipe = (INDIAN_RECIPES as DetailedRecipe[]).find(r => r.id === id);
   
   // If not found in Indian recipes, check MOCK_RECIPES
-  const mockRecipe = !indianRecipe ? MOCK_RECIPES.find(r => r.id === Number(id)) : null;
+  const mockRecipe = !indianRecipe ? MOCK_RECIPES.find(r => r.id === Number(id)) as MockRecipe : null;
   
   const recipe = indianRecipe || mockRecipe;
 
@@ -132,6 +145,15 @@ const RecipeDetail = () => {
   // Get preparation time (separate from cooking time)
   const prepTime = indianRecipe ? 15 : 20;
 
+  // Get cook time based on recipe type
+  const cookTime = indianRecipe ? indianRecipe.cooking_time : mockRecipe?.time?.replace(' min', '');
+  
+  // Get servings with fallback
+  const servings = indianRecipe?.servings || mockRecipe?.servings || 4;
+  
+  // Get image src based on recipe type
+  const imageSrc = indianRecipe ? indianRecipe.image_url : mockRecipe?.image;
+
   return (
     <article className="max-w-6xl mx-auto space-y-8 px-4 py-8">
       {/* Back button and recipe meta */}
@@ -169,14 +191,14 @@ const RecipeDetail = () => {
             <Clock className="h-5 w-5 text-orange-500" />
             <div>
               <span className="block font-semibold">Cook Time</span>
-              <span className="font-poppins">{indianRecipe ? indianRecipe.cooking_time : recipe.time} mins</span>
+              <span className="font-poppins">{cookTime} mins</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-orange-500" />
             <div>
               <span className="block font-semibold">Servings</span>
-              <span className="font-poppins">{recipe.servings} servings</span>
+              <span className="font-poppins">{servings} servings</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -192,7 +214,7 @@ const RecipeDetail = () => {
       {/* Recipe image */}
       <div className="aspect-video overflow-hidden rounded-xl">
         <img
-          src={indianRecipe ? indianRecipe.image_url : recipe.image}
+          src={imageSrc}
           alt={recipe.title}
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
         />
@@ -221,7 +243,7 @@ const RecipeDetail = () => {
                         {ingredient.amount} {ingredient.unit} {ingredient.name}
                       </li>
                     ))
-                  : recipe.ingredients?.map((ingredient, index) => (
+                  : mockRecipe?.ingredients?.map((ingredient, index) => (
                       <li key={index} className="flex items-center gap-2 font-poppins p-2 hover:bg-orange-50 rounded-md">
                         <div className="h-2 w-2 rounded-full bg-orange-500"></div>
                         {ingredient}

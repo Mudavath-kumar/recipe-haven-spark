@@ -27,6 +27,7 @@ export type DetailedRecipe = {
   category: string;
   instructions: string;
   ingredients: Ingredient[];
+  servings?: number; // Added servings property
 };
 
 // Mock data for the Indian recipes
@@ -38,6 +39,7 @@ export const INDIAN_RECIPES: DetailedRecipe[] = [
     image_url: "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?ixlib=rb-1.2.1&auto=format&fit=crop&w=896&q=80",
     cooking_time: 45,
     category: "Indian",
+    servings: 4,
     instructions: "1. Mix chicken with yogurt, ginger-garlic paste, and spices. Marinate for at least 2 hours.\n2. Grill or bake chicken until partially cooked.\n3. In a pan, heat butter and add onions, ginger-garlic paste, and tomato paste.\n4. Add spices and cook until fragrant.\n5. Add tomato puree and simmer for 10 minutes.\n6. Add cream, honey, and fenugreek leaves.\n7. Add the grilled chicken and simmer for 15 minutes.\n8. Finish with a dollop of butter and garnish with cream.",
     ingredients: [
       { name: "Chicken", amount: "500", unit: "grams" },
@@ -59,6 +61,7 @@ export const INDIAN_RECIPES: DetailedRecipe[] = [
     image_url: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1297&q=80",
     cooking_time: 60,
     category: "Indian",
+    servings: 6,
     instructions: "1. Wash and soak basmati rice for 30 minutes.\n2. Marinate chicken with yogurt, ginger-garlic paste, red chili powder, and garam masala for at least 2 hours.\n3. In a large pot, heat ghee and add whole spices (bay leaves, cinnamon, cardamom, cloves).\n4. Add sliced onions and cook until golden brown.\n5. Add marinated chicken and cook for 5 minutes.\n6. In another pot, cook rice with whole spices until 70% done.\n7. Layer the partially cooked rice over the chicken.\n8. Add saffron-soaked milk, fresh mint, and coriander leaves.\n9. Cover and cook on low heat for 20-25 minutes.\n10. Let it rest for 5 minutes before serving.",
     ingredients: [
       { name: "Basmati rice", amount: "2", unit: "cups" },
@@ -335,7 +338,7 @@ const IndianRecipes = () => {
                 description={recipe.description}
                 image={recipe.image_url}
                 time={`${recipe.cooking_time} mins`}
-                servings={4}
+                servings={recipe.servings || 4}
                 category={recipe.category}
               />
               <Button 
@@ -373,7 +376,7 @@ const IndianRecipes = () => {
                 </div>
                 <div className="flex items-center gap-1">
                   <Users className="h-4 w-4" />
-                  <span>4 servings</span>
+                  <span>{selectedRecipe?.servings || 4} servings</span>
                 </div>
               </div>
               
