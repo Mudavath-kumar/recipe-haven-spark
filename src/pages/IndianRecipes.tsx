@@ -18,7 +18,7 @@ type Ingredient = {
   unit: string | null;
 };
 
-type DetailedRecipe = {
+export type DetailedRecipe = {
   id: string;
   title: string;
   description: string;
@@ -30,7 +30,7 @@ type DetailedRecipe = {
 };
 
 // Mock data for the Indian recipes
-const INDIAN_RECIPES: DetailedRecipe[] = [
+export const INDIAN_RECIPES: DetailedRecipe[] = [
   {
     id: "ind-1",
     title: "Butter Chicken",
