@@ -2,15 +2,46 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, User, Video, PlusCircle } from "lucide-react";
-import { useState } from "react";
+import { Search, User, Video, PlusCircle, LogOut } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Session } from "@supabase/supabase-js";
 
 export const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check for active session
+    const checkSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+      } catch (error) {
+        console.error("Error checking session:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+      }
+    );
+
+    // Clean up subscription
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,10 +90,12 @@ export const Navbar = () => {
           <Link to="/new-recipes" className="text-sm font-medium hover:text-primary">
             New
           </Link>
-          <Link to="/add-recipe" className="text-sm font-medium hover:text-primary flex items-center gap-1">
-            <PlusCircle className="h-4 w-4" />
-            Add Recipe
-          </Link>
+          {session ? (
+            <Link to="/add-recipe" className="text-sm font-medium hover:text-primary flex items-center gap-1">
+              <PlusCircle className="h-4 w-4" />
+              Add Recipe
+            </Link>
+          ) : null}
           <Link to="/food-videos" className="text-sm font-medium hover:text-primary flex items-center gap-1">
             <Video className="h-4 w-4" />
             Videos
@@ -78,16 +111,29 @@ export const Navbar = () => {
             />
           </form>
           
-          <Button asChild variant="ghost">
-            <Link to="/login">
-              <User className="mr-2 h-4 w-4" />
-              Login
-            </Link>
-          </Button>
-          
-          <Button asChild>
-            <Link to="/signup">Sign up</Link>
-          </Button>
+          {!loading && (
+            <>
+              {session ? (
+                <Button onClick={handleLogout} variant="ghost">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              ) : (
+                <>
+                  <Button asChild variant="ghost">
+                    <Link to="/login">
+                      <User className="mr-2 h-4 w-4" />
+                      Login
+                    </Link>
+                  </Button>
+                  
+                  <Button asChild>
+                    <Link to="/signup">Sign up</Link>
+                  </Button>
+                </>
+              )}
+            </>
+          )}
         </div>
       </div>
     </nav>
