@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { PlayCircle } from "lucide-react";
+import { PlayCircle, Search, Utensils, Clock, ThumbsUp } from "lucide-react";
 
 const Index = () => {
   const [category, setCategory] = useState<string>("all");
@@ -61,7 +61,7 @@ const Index = () => {
           <p className="text-xl md:text-2xl text-recipe-700 font-poppins animate-in slide-in-from-bottom duration-500 delay-150">
             Explore our curated collection of delicious recipes from around the world
           </p>
-          <div className="flex justify-center gap-4 pt-4">
+          <div className="flex flex-wrap justify-center gap-4 pt-4">
             <Button asChild size="lg" className="bg-recipe-700 hover:bg-recipe-800">
               <Link to="/indian-recipes">
                 Browse Indian Recipes
@@ -72,7 +72,57 @@ const Index = () => {
                 Watch Cooking Videos
               </Link>
             </Button>
+            <Button asChild size="lg" className="bg-green-600 hover:bg-green-700">
+              <Link to="/add-recipe">
+                <Utensils className="mr-2 h-4 w-4" />
+                Add Your Recipe
+              </Link>
+            </Button>
           </div>
+        </div>
+      </section>
+
+      {/* Featured Section */}
+      <section className="container px-6 py-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <Card className="p-6 hover:shadow-lg transition-shadow">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-amber-100 p-3 rounded-full">
+                <Utensils className="h-8 w-8 text-amber-600" />
+              </div>
+              <h3 className="text-xl font-semibold">Create Recipes</h3>
+              <p className="text-muted-foreground">Share your culinary masterpieces with our community. Add your own special recipes easily.</p>
+              <Button asChild variant="outline">
+                <Link to="/add-recipe">Start Creating</Link>
+              </Button>
+            </div>
+          </Card>
+          
+          <Card className="p-6 hover:shadow-lg transition-shadow">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-blue-100 p-3 rounded-full">
+                <Search className="h-8 w-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold">Find Recipes</h3>
+              <p className="text-muted-foreground">Discover recipes from around the world. Use our search to find exactly what you're craving.</p>
+              <Button asChild variant="outline">
+                <Link to="/search">Search Recipes</Link>
+              </Button>
+            </div>
+          </Card>
+          
+          <Card className="p-6 hover:shadow-lg transition-shadow">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-green-100 p-3 rounded-full">
+                <PlayCircle className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold">Watch Videos</h3>
+              <p className="text-muted-foreground">Learn cooking techniques with our curated collection of instructional videos.</p>
+              <Button asChild variant="outline">
+                <Link to="/food-videos">Watch Now</Link>
+              </Button>
+            </div>
+          </Card>
         </div>
       </section>
 

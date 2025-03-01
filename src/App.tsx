@@ -14,8 +14,9 @@ import IndianRecipes from "./pages/IndianRecipes";
 import NewRecipes from "./pages/NewRecipes";
 import PopularRecipes from "./pages/PopularRecipes";
 import RecipeDetail from "./pages/RecipeDetail";
-import FoodModel3D from "./pages/FoodModel3D";
 import FoodVideos from "./pages/FoodVideos";
+import SearchResults from "./pages/SearchResults";
+import AddRecipe from "./pages/AddRecipe";
 import { supabase } from "./integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 
@@ -74,8 +75,16 @@ function App() {
               <Route path="/new-recipes" element={<NewRecipes />} />
               <Route path="/popular-recipes" element={<PopularRecipes />} />
               <Route path="/recipe/:id" element={<RecipeDetail />} />
-              <Route path="/food-model" element={<FoodModel3D />} />
               <Route path="/food-videos" element={<FoodVideos />} />
+              <Route path="/search" element={<SearchResults />} />
+              <Route
+                path="/add-recipe"
+                element={
+                  <ProtectedRoute>
+                    <AddRecipe />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
