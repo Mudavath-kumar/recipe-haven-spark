@@ -2,11 +2,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, User, Video, PlusCircle, LogOut } from "lucide-react";
+import { Search, User, Video, PlusCircle, LogOut, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
+import { 
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose
+} from "@/components/ui/sheet";
 
 export const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -14,6 +20,7 @@ export const Navbar = () => {
   const { toast } = useToast();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   useEffect(() => {
     // Check for active session
@@ -47,6 +54,7 @@ export const Navbar = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setShowMobileSearch(false);
     } else {
       toast({
         title: "Search Error",
@@ -73,35 +81,43 @@ export const Navbar = () => {
     }
   };
 
+  // Navigation links for both desktop and mobile
+  const navLinks = [
+    { to: "/indian-recipes", label: "Indian Recipes" },
+    { to: "/popular-recipes", label: "Popular" },
+    { to: "/new-recipes", label: "New" },
+    session ? { to: "/add-recipe", label: "Add Recipe", icon: <PlusCircle className="h-4 w-4 mr-2" /> } : null,
+    { to: "/food-videos", label: "Videos", icon: <Video className="h-4 w-4 mr-2" /> },
+  ].filter(Boolean);
+
   return (
     <nav className="border-b fixed top-0 left-0 right-0 bg-white z-10">
-      <div className="container flex flex-col py-4 md:h-16 md:flex-row md:items-center md:justify-between">
-        <Link to="/" className="text-2xl font-semibold tracking-tight">
-          RecipeHaven
-        </Link>
-        
-        <div className="mt-4 flex flex-wrap items-center gap-4 md:mt-0">
-          <Link to="/indian-recipes" className="text-sm font-medium hover:text-primary">
-            Indian Recipes
-          </Link>
-          <Link to="/popular-recipes" className="text-sm font-medium hover:text-primary">
-            Popular
-          </Link>
-          <Link to="/new-recipes" className="text-sm font-medium hover:text-primary">
-            New
-          </Link>
-          {session ? (
-            <Link to="/add-recipe" className="text-sm font-medium hover:text-primary flex items-center gap-1">
-              <PlusCircle className="h-4 w-4" />
-              Add Recipe
-            </Link>
-          ) : null}
-          <Link to="/food-videos" className="text-sm font-medium hover:text-primary flex items-center gap-1">
-            <Video className="h-4 w-4" />
-            Videos
+      <div className="container px-4 flex items-center justify-between h-16">
+        <div className="flex items-center">
+          <Link to="/" className="text-2xl font-semibold tracking-tight mr-6">
+            RecipeHaven
           </Link>
           
-          <form onSubmit={handleSearch} className="relative w-full md:w-96">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
+            {navLinks.map((link, index) => (
+              link && (
+                <Link 
+                  key={index}
+                  to={link.to} 
+                  className="text-sm font-medium hover:text-primary flex items-center"
+                >
+                  {link.icon}
+                  {link.label}
+                </Link>
+              )
+            ))}
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {/* Desktop Search */}
+          <form onSubmit={handleSearch} className="relative hidden md:block md:w-64 lg:w-80">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search recipes..."
@@ -111,15 +127,26 @@ export const Navbar = () => {
             />
           </form>
           
+          {/* Mobile Search Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setShowMobileSearch(!showMobileSearch)}
+          >
+            <Search className="h-5 w-5" />
+          </Button>
+          
+          {/* Auth Buttons */}
           {!loading && (
             <>
               {session ? (
-                <Button onClick={handleLogout} variant="ghost">
+                <Button onClick={handleLogout} variant="ghost" className="hidden md:flex">
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </Button>
               ) : (
-                <>
+                <div className="hidden md:flex items-center gap-2">
                   <Button asChild variant="ghost">
                     <Link to="/login">
                       <User className="mr-2 h-4 w-4" />
@@ -130,12 +157,102 @@ export const Navbar = () => {
                   <Button asChild>
                     <Link to="/signup">Sign up</Link>
                   </Button>
-                </>
+                </div>
               )}
             </>
           )}
+          
+          {/* Mobile Menu */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[80vw] sm:w-[350px]">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between mb-6">
+                  <Link to="/" className="text-xl font-semibold">
+                    RecipeHaven
+                  </Link>
+                  <SheetClose asChild>
+                    <Button variant="ghost" size="icon">
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </SheetClose>
+                </div>
+                
+                <div className="space-y-4 flex-grow">
+                  {navLinks.map((link, index) => (
+                    link && (
+                      <SheetClose key={index} asChild>
+                        <Link
+                          to={link.to}
+                          className="flex items-center py-2 px-4 hover:bg-gray-100 rounded-md text-sm font-medium w-full"
+                        >
+                          {link.icon || <div className="w-4 h-4 mr-2" />}
+                          {link.label}
+                        </Link>
+                      </SheetClose>
+                    )
+                  ))}
+                </div>
+                
+                <div className="mt-auto pt-4 border-t">
+                  {!loading && (
+                    <>
+                      {session ? (
+                        <SheetClose asChild>
+                          <Button onClick={handleLogout} variant="ghost" className="w-full justify-start">
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Logout
+                          </Button>
+                        </SheetClose>
+                      ) : (
+                        <div className="flex flex-col gap-2">
+                          <SheetClose asChild>
+                            <Button asChild variant="outline" className="w-full justify-start">
+                              <Link to="/login">
+                                <User className="mr-2 h-4 w-4" />
+                                Login
+                              </Link>
+                            </Button>
+                          </SheetClose>
+                          
+                          <SheetClose asChild>
+                            <Button asChild className="w-full">
+                              <Link to="/signup">Sign up</Link>
+                            </Button>
+                          </SheetClose>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
+      
+      {/* Mobile Search Bar */}
+      {showMobileSearch && (
+        <div className="w-full px-4 py-2 bg-white md:hidden">
+          <form onSubmit={handleSearch} className="relative">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search recipes..."
+              className="pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus
+            />
+            <Button type="submit" className="absolute right-1 top-1">
+              Search
+            </Button>
+          </form>
+        </div>
+      )}
     </nav>
   );
 };
