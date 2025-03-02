@@ -25,6 +25,8 @@ const getPlaceholderImage = (category: string): string => {
     'Baking': 'https://images.unsplash.com/photo-1495147466023-ac5c588e2e94',
     'Salads': 'https://images.unsplash.com/photo-1540420773420-3366772f4999',
     'Asian': 'https://images.unsplash.com/photo-1540648639573-8c848de23f0a',
+    'Vegetarian': 'https://images.unsplash.com/photo-1543362906-acfc16c67564',
+    'Non-Vegetarian': 'https://images.unsplash.com/photo-1607116667981-27b1f21c5c04',
     'default': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9'
   };
 
@@ -80,10 +82,11 @@ export const RecipeCard = ({
           }}
         />
         <div className="absolute top-2 right-2 flex flex-col gap-2">
-          <Badge className="bg-white/90">{category}</Badge>
+          <Badge className="bg-white/90 text-xs">{category}</Badge>
           <Badge 
             variant="outline" 
             className={`
+              text-xs
               ${dietInfo.type === 'vegetarian' ? 'bg-green-50 text-green-700 border-green-200' : 
                 dietInfo.type === 'dessert' ? 'bg-purple-50 text-purple-700 border-purple-200' : 
                 'bg-red-50 text-red-700 border-red-200'}
@@ -96,24 +99,24 @@ export const RecipeCard = ({
           </Badge>
         </div>
       </div>
-      <CardHeader className="flex-grow">
-        <CardTitle className="line-clamp-1">{title}</CardTitle>
-        <CardDescription className="line-clamp-2">{description || 'No description available'}</CardDescription>
+      <CardHeader className="flex-grow p-4 md:p-6">
+        <CardTitle className="line-clamp-1 text-lg md:text-xl">{title}</CardTitle>
+        <CardDescription className="line-clamp-2 text-sm md:text-base mt-1">{description || 'No description available'}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+      <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+        <div className="flex items-center gap-3 md:gap-4 text-xs md:text-sm text-muted-foreground flex-wrap">
           <div className="flex items-center gap-1">
-            <Clock className="h-4 w-4" />
+            <Clock className="h-3 w-3 md:h-4 md:w-4" />
             <span>{time}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Users className="h-4 w-4" />
+            <Users className="h-3 w-3 md:h-4 md:w-4" />
             <span>{servings} servings</span>
           </div>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button asChild className="w-full">
+      <CardFooter className="p-4 pt-0 md:p-6 md:pt-0 mt-auto">
+        <Button asChild className="w-full text-xs md:text-sm h-9 md:h-10">
           <Link to={`/recipe/${id}`}>View Recipe</Link>
         </Button>
       </CardFooter>

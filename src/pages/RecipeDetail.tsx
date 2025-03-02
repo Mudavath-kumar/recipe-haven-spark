@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { MOCK_RECIPES } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,8 @@ import {
   AlertCircle, 
   Star, 
   Utensils, 
-  ArrowLeft
+  ArrowLeft,
+  Check
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -39,7 +39,7 @@ type DetailedRecipe = {
   category: string;
   instructions: string;
   ingredients: Ingredient[];
-  servings?: number; // Added this property
+  servings?: number;
 };
 
 type MockRecipe = {
@@ -54,14 +54,95 @@ type MockRecipe = {
   instructions?: string[];
 };
 
+const DEFAULT_INGREDIENTS: Record<string, string[]> = {
+  'Italian Pasta': [
+    '400g spaghetti or favorite pasta',
+    '2 tbsp olive oil',
+    '4 cloves garlic, minced',
+    '1 can (400g) crushed tomatoes',
+    '1 tsp dried oregano',
+    '1 tsp dried basil',
+    'Salt and pepper to taste',
+    'Grated Parmesan cheese for serving',
+    'Fresh basil leaves for garnish'
+  ],
+  'Chocolate Cake': [
+    '2 cups all-purpose flour',
+    '2 cups sugar',
+    '3/4 cup unsweetened cocoa powder',
+    '2 tsp baking soda',
+    '1 tsp baking powder',
+    '1 tsp salt',
+    '2 eggs',
+    '1 cup buttermilk',
+    '1/2 cup vegetable oil',
+    '2 tsp vanilla extract',
+    '1 cup hot coffee'
+  ],
+  'Chicken Curry': [
+    '500g chicken thighs, cut into pieces',
+    '2 onions, finely chopped',
+    '3 cloves garlic, minced',
+    '1 tbsp ginger, grated',
+    '2 tbsp curry powder',
+    '1 can (400ml) coconut milk',
+    '1 tbsp vegetable oil',
+    'Salt to taste',
+    'Fresh cilantro for garnish',
+    '1 tomato, chopped'
+  ],
+  'Vegetable Stir Fry': [
+    '2 cups mixed vegetables (bell peppers, broccoli, carrots, snap peas)',
+    '2 tbsp sesame oil',
+    '2 cloves garlic, minced',
+    '1 tbsp ginger, grated',
+    '3 tbsp soy sauce',
+    '1 tbsp honey or maple syrup',
+    '1 tsp cornstarch mixed with 2 tbsp water',
+    'Sesame seeds for garnish',
+    'Green onions, sliced'
+  ],
+  'Caesar Salad': [
+    '1 large romaine lettuce, chopped',
+    '1/2 cup croutons',
+    '1/4 cup grated Parmesan cheese',
+    '2 tbsp olive oil',
+    '1 tbsp lemon juice',
+    '1 tsp Dijon mustard',
+    '1 clove garlic, minced',
+    '1 anchovy fillet, minced (optional)',
+    'Salt and pepper to taste'
+  ]
+};
+
+const getDefaultIngredients = (recipe: MockRecipe): string[] => {
+  if (recipe.ingredients && recipe.ingredients.length > 0) {
+    return recipe.ingredients;
+  }
+  
+  if (DEFAULT_INGREDIENTS[recipe.title]) {
+    return DEFAULT_INGREDIENTS[recipe.title];
+  }
+  
+  if (recipe.category === 'Italian') {
+    return DEFAULT_INGREDIENTS['Italian Pasta'];
+  } else if (recipe.category === 'Desserts') {
+    return DEFAULT_INGREDIENTS['Chocolate Cake'];
+  } else if (recipe.category === 'Salads') {
+    return DEFAULT_INGREDIENTS['Caesar Salad'];
+  } else if (recipe.category === 'Asian') {
+    return DEFAULT_INGREDIENTS['Vegetable Stir Fry'];
+  } else {
+    return DEFAULT_INGREDIENTS['Chicken Curry'];
+  }
+};
+
 const RecipeDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // First check if we can find the recipe in INDIAN_RECIPES
   const indianRecipe = (INDIAN_RECIPES as DetailedRecipe[]).find(r => r.id === id);
   
-  // If not found in Indian recipes, check MOCK_RECIPES
   const mockRecipe = !indianRecipe ? MOCK_RECIPES.find(r => r.id === Number(id)) as MockRecipe : null;
   
   const recipe = indianRecipe || mockRecipe;
@@ -113,7 +194,6 @@ const RecipeDetail = () => {
     );
   }
 
-  // Get nutrition facts
   const nutritionFacts = {
     calories: "320",
     fat: "12g",
@@ -123,7 +203,6 @@ const RecipeDetail = () => {
     sugar: "8g"
   };
 
-  // Get cooking tips
   const cookingTips = [
     "Marinate the meat overnight for deeper flavor",
     "Use freshly ground spices for the best aroma",
@@ -131,88 +210,100 @@ const RecipeDetail = () => {
     "Let the curry simmer on low heat for a richer taste"
   ];
 
-  // Format instructions based on source
+  const recipeIngredients = mockRecipe 
+    ? (mockRecipe.ingredients?.length ? mockRecipe.ingredients : getDefaultIngredients(mockRecipe))
+    : indianRecipe?.ingredients || [];
+
   const instructionSteps = indianRecipe ? 
     indianRecipe.instructions.split("\n") : 
     mockRecipe?.instructions?.map((instruction, i) => `${i+1}. ${instruction}`) || [];
 
-  // Calculate recipe rating (would come from a database in a real app)
   const rating = 4.7;
 
-  // Get difficulty
   const difficulty = "Medium";
 
-  // Get preparation time (separate from cooking time)
   const prepTime = indianRecipe ? 15 : 20;
 
-  // Get cook time based on recipe type
   const cookTime = indianRecipe ? indianRecipe.cooking_time : mockRecipe?.time?.replace(' min', '');
   
-  // Get servings with fallback
   const servings = indianRecipe?.servings || mockRecipe?.servings || 4;
   
-  // Get image src based on recipe type
   const imageSrc = indianRecipe ? indianRecipe.image_url : mockRecipe?.image;
 
+  const getDietType = (category: string) => {
+    const vegetarianCategories = ['Indian', 'Salads', 'Italian', 'Vegetarian'];
+    const dessertCategories = ['Desserts', 'Baking'];
+    
+    if (vegetarianCategories.includes(category)) {
+      return { label: 'Vegetarian', color: 'bg-green-100 text-green-700 border-green-200' };
+    } else if (dessertCategories.includes(category)) {
+      return { label: 'Dessert', color: 'bg-purple-100 text-purple-700 border-purple-200' };
+    } else {
+      return { label: 'Non-Vegetarian', color: 'bg-red-100 text-red-700 border-red-200' };
+    }
+  };
+
+  const dietType = getDietType(recipe.category);
+
   return (
-    <article className="max-w-6xl mx-auto space-y-8 px-4 py-8">
-      {/* Back button and recipe meta */}
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="flex items-center gap-2">
+    <article className="max-w-6xl mx-auto space-y-6 px-4 py-6 md:space-y-8 md:py-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <Button variant="ghost" onClick={() => navigate(-1)} className="flex items-center gap-2 self-start">
           <ArrowLeft className="h-4 w-4" />
           Back to recipes
         </Button>
         <div className="flex items-center gap-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className={`h-5 w-5 ${i < Math.floor(rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} />
+            <Star key={i} className={`h-4 w-4 md:h-5 md:w-5 ${i < Math.floor(rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} />
           ))}
           <span className="text-sm font-medium">{rating} ({Math.floor(Math.random() * 500) + 100} reviews)</span>
         </div>
       </div>
 
-      {/* Recipe header */}
-      <div className="space-y-4">
+      <div className="space-y-3 md:space-y-4">
         <div className="flex flex-wrap gap-2">
           <Badge className="font-poppins">{recipe.category}</Badge>
+          <Badge variant="outline" className={`font-poppins ${dietType.color}`}>
+            {dietType.label}
+          </Badge>
           <Badge variant="outline" className="font-poppins">{difficulty} difficulty</Badge>
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-playfair">{recipe.title}</h1>
-        <p className="text-xl text-muted-foreground font-poppins">{recipe.description}</p>
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight font-playfair">{recipe.title}</h1>
+        <p className="text-lg md:text-xl text-muted-foreground font-poppins">{recipe.description}</p>
         
-        <div className="flex flex-wrap items-center gap-6">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-3 sm:gap-6">
           <div className="flex items-center gap-2">
             <Timer className="h-5 w-5 text-orange-500" />
             <div>
-              <span className="block font-semibold">Prep Time</span>
-              <span className="font-poppins">{prepTime} mins</span>
+              <span className="block text-sm font-semibold">Prep Time</span>
+              <span className="font-poppins text-sm">{prepTime} mins</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-orange-500" />
             <div>
-              <span className="block font-semibold">Cook Time</span>
-              <span className="font-poppins">{cookTime} mins</span>
+              <span className="block text-sm font-semibold">Cook Time</span>
+              <span className="font-poppins text-sm">{cookTime} mins</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-orange-500" />
             <div>
-              <span className="block font-semibold">Servings</span>
-              <span className="font-poppins">{servings} servings</span>
+              <span className="block text-sm font-semibold">Servings</span>
+              <span className="font-poppins text-sm">{servings} servings</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <ChefHat className="h-5 w-5 text-orange-500" />
             <div>
-              <span className="block font-semibold">Chef</span>
-              <span className="font-poppins">Professional</span>
+              <span className="block text-sm font-semibold">Chef</span>
+              <span className="font-poppins text-sm">Professional</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Recipe image */}
-      <div className="aspect-video overflow-hidden rounded-xl">
+      <div className="aspect-video overflow-hidden rounded-xl shadow-md">
         <img
           src={imageSrc}
           alt={recipe.title}
@@ -220,32 +311,31 @@ const RecipeDetail = () => {
         />
       </div>
 
-      {/* Recipe content tabs */}
       <Tabs defaultValue="recipe" className="w-full">
-        <TabsList className="w-full justify-start mb-6">
+        <TabsList className="w-full justify-start mb-6 overflow-x-auto flex-nowrap">
           <TabsTrigger value="recipe">Recipe</TabsTrigger>
           <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
           <TabsTrigger value="tips">Tips & Notes</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="recipe" className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="p-6 space-y-4">
-              <h2 className="text-2xl font-semibold font-playfair flex items-center gap-2">
+        <TabsContent value="recipe" className="space-y-6 md:space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <Card className="p-4 md:p-6 space-y-4 h-auto">
+              <h2 className="text-xl md:text-2xl font-semibold font-playfair flex items-center gap-2">
                 <Utensils className="h-5 w-5 text-orange-500" />
                 Ingredients
               </h2>
-              <ul className="space-y-3">
+              <ul className="space-y-2 md:space-y-3">
                 {indianRecipe 
                   ? indianRecipe.ingredients.map((ingredient, index) => (
                       <li key={index} className="flex items-center gap-2 font-poppins p-2 hover:bg-orange-50 rounded-md">
-                        <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                        <div className="h-2 w-2 rounded-full bg-orange-500 flex-shrink-0"></div>
                         {ingredient.amount} {ingredient.unit} {ingredient.name}
                       </li>
                     ))
-                  : mockRecipe?.ingredients?.map((ingredient, index) => (
+                  : recipeIngredients.map((ingredient, index) => (
                       <li key={index} className="flex items-center gap-2 font-poppins p-2 hover:bg-orange-50 rounded-md">
-                        <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                        <div className="h-2 w-2 rounded-full bg-orange-500 flex-shrink-0"></div>
                         {ingredient}
                       </li>
                     ))
@@ -253,18 +343,18 @@ const RecipeDetail = () => {
               </ul>
             </Card>
 
-            <Card className="p-6 space-y-4">
-              <h2 className="text-2xl font-semibold font-playfair flex items-center gap-2">
+            <Card className="p-4 md:p-6 space-y-4 h-auto">
+              <h2 className="text-xl md:text-2xl font-semibold font-playfair flex items-center gap-2">
                 <ChefHat className="h-5 w-5 text-orange-500" />
                 Instructions
               </h2>
-              <ol className="space-y-4">
+              <ol className="space-y-3 md:space-y-4">
                 {instructionSteps.map((instruction, index) => (
-                  <li key={index} className="flex gap-4 font-poppins group">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-semibold group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                  <li key={index} className="flex gap-3 md:gap-4 font-poppins group">
+                    <div className="flex-shrink-0 w-6 h-6 md:w-8 md:h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-semibold group-hover:bg-orange-500 group-hover:text-white transition-colors text-sm md:text-base">
                       {index + 1}
                     </div>
-                    <div className="pt-1">
+                    <div className="pt-0.5 text-sm md:text-base">
                       {instruction}
                     </div>
                   </li>
@@ -275,32 +365,32 @@ const RecipeDetail = () => {
         </TabsContent>
         
         <TabsContent value="nutrition" className="space-y-8">
-          <Card className="p-6">
-            <h2 className="text-2xl font-semibold font-playfair mb-4">Nutrition Facts</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <Card className="p-4 md:p-6">
+            <h2 className="text-xl md:text-2xl font-semibold font-playfair mb-4">Nutrition Facts</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               {Object.entries(nutritionFacts).map(([key, value]) => (
-                <div key={key} className="p-4 border rounded-lg text-center">
-                  <p className="text-muted-foreground capitalize">{key}</p>
-                  <p className="text-2xl font-semibold">{value}</p>
+                <div key={key} className="p-3 md:p-4 border rounded-lg text-center">
+                  <p className="text-muted-foreground capitalize text-sm">{key}</p>
+                  <p className="text-xl md:text-2xl font-semibold">{value}</p>
                 </div>
               ))}
             </div>
-            <div className="mt-6 text-sm text-muted-foreground">
+            <div className="mt-6 text-xs md:text-sm text-muted-foreground">
               <p>* Percent Daily Values are based on a 2,000 calorie diet. Your daily values may be higher or lower depending on your calorie needs.</p>
             </div>
           </Card>
         </TabsContent>
         
         <TabsContent value="tips" className="space-y-8">
-          <Card className="p-6">
-            <h2 className="text-2xl font-semibold font-playfair mb-4">Cooking Tips & Notes</h2>
+          <Card className="p-4 md:p-6">
+            <h2 className="text-xl md:text-2xl font-semibold font-playfair mb-4">Cooking Tips & Notes</h2>
             <ul className="space-y-3">
               {cookingTips.map((tip, index) => (
                 <li key={index} className="flex items-start gap-2 font-poppins p-2 hover:bg-orange-50 rounded-md">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-semibold text-sm">
+                  <div className="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-semibold text-xs md:text-sm">
                     {index + 1}
                   </div>
-                  <div className="pt-1">{tip}</div>
+                  <div className="pt-0.5 text-sm md:text-base">{tip}</div>
                 </li>
               ))}
             </ul>
@@ -310,30 +400,28 @@ const RecipeDetail = () => {
 
       <Separator />
 
-      {/* Recipe actions */}
-      <div className="flex flex-wrap items-center gap-4">
-        <Button onClick={handlePrint} variant="outline" className="flex-1 sm:flex-none font-poppins">
-          <Printer className="mr-2 h-4 w-4" />
-          Print Recipe
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-3">
+        <Button onClick={handlePrint} variant="outline" className="flex-1 sm:flex-none font-poppins text-xs md:text-sm h-9 md:h-10">
+          <Printer className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+          <span className="hidden xs:inline">Print Recipe</span>
         </Button>
-        <Button onClick={handleShare} variant="outline" className="flex-1 sm:flex-none font-poppins">
-          <Share2 className="mr-2 h-4 w-4" />
-          Share Recipe
+        <Button onClick={handleShare} variant="outline" className="flex-1 sm:flex-none font-poppins text-xs md:text-sm h-9 md:h-10">
+          <Share2 className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+          <span className="hidden xs:inline">Share Recipe</span>
         </Button>
-        <Button onClick={handleSaveRecipe} variant="outline" className="flex-1 sm:flex-none font-poppins">
-          <Bookmark className="mr-2 h-4 w-4" />
-          Save Recipe
+        <Button onClick={handleSaveRecipe} variant="outline" className="flex-1 sm:flex-none font-poppins text-xs md:text-sm h-9 md:h-10">
+          <Bookmark className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+          <span className="hidden xs:inline">Save Recipe</span>
         </Button>
-        <Button onClick={handleLike} className="flex-1 sm:flex-none font-poppins bg-orange-500 hover:bg-orange-600">
-          <Heart className="mr-2 h-4 w-4" />
-          Like Recipe
+        <Button onClick={handleLike} className="flex-1 sm:flex-none font-poppins bg-orange-500 hover:bg-orange-600 text-xs md:text-sm h-9 md:h-10">
+          <Heart className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+          <span className="hidden xs:inline">Like Recipe</span>
         </Button>
       </div>
 
-      {/* Related recipes section */}
-      <div className="pt-8">
-        <h2 className="text-2xl font-semibold font-playfair mb-6">You Might Also Like</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="pt-6 md:pt-8">
+        <h2 className="text-xl md:text-2xl font-semibold font-playfair mb-4 md:mb-6">You Might Also Like</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {MOCK_RECIPES.slice(0, 3).map((relatedRecipe) => (
             <Card key={relatedRecipe.id} className="overflow-hidden group cursor-pointer hover:shadow-md transition-all"
                   onClick={() => navigate(`/recipe/${relatedRecipe.id}`)}>
@@ -344,13 +432,13 @@ const RecipeDetail = () => {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <div className="p-4">
-                <Badge className="mb-2">{relatedRecipe.category}</Badge>
-                <h3 className="font-bold text-lg mb-1 group-hover:text-orange-500 transition-colors">
+              <div className="p-3 md:p-4">
+                <Badge className="mb-2 text-xs">{relatedRecipe.category}</Badge>
+                <h3 className="font-bold text-base md:text-lg mb-1 line-clamp-1 group-hover:text-orange-500 transition-colors">
                   {relatedRecipe.title}
                 </h3>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4 mr-1" />
+                <div className="flex items-center text-xs md:text-sm text-muted-foreground">
+                  <Clock className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                   <span>{relatedRecipe.time}</span>
                 </div>
               </div>
