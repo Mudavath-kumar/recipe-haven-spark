@@ -97,7 +97,10 @@ const ForgotPassword = () => {
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => form.reset() || setEmailSent(false)}
+                onClick={() => {
+                  form.reset();
+                  setEmailSent(false);
+                }}
               >
                 Try with a different email
               </Button>

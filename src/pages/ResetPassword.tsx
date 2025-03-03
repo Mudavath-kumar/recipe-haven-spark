@@ -47,8 +47,8 @@ const ResetPassword = () => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
       
-      // If we don't have a session with recovery mode, redirect to login
-      if (!data.session?.user?.email && !data.session?.user?.recovery_mode) {
+      // If we don't have a session, redirect to login
+      if (!data.session?.user?.email) {
         toast.error("Invalid or expired reset link. Please try again.");
         navigate("/login");
       }
