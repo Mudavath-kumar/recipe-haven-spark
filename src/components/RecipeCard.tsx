@@ -40,7 +40,10 @@ const getDietType = (category: string) => {
   
   // For Indian recipes, check the title to determine if it's vegetarian
   if (category === 'Indian') {
-    const nonVegIndianDishes = ['Butter Chicken', 'Chicken Biryani', 'Tandoori Chicken', 'Biryani'];
+    const nonVegIndianDishes = [
+      'Butter Chicken', 'Chicken Biryani', 'Tandoori Chicken', 'Biryani', 
+      'Chicken Curry', 'Chicken Tikka', 'Fish Curry', 'Mutton'
+    ];
     return (title: string) => {
       if (nonVegIndianDishes.some(dish => title.includes(dish))) {
         return {
@@ -124,7 +127,7 @@ export const RecipeCard = ({
       </div>
       <CardHeader className="flex-grow p-3 md:p-4 lg:p-6">
         <CardTitle className="line-clamp-1 text-base md:text-lg lg:text-xl">{title}</CardTitle>
-        <CardDescription className="line-clamp-2 text-xs md:text-sm mt-1">{description || 'No description available'}</CardDescription>
+        <CardDescription className="line-clamp-2 text-xs md:text-sm mt-1">{description}</CardDescription>
       </CardHeader>
       <CardContent className="p-3 pt-0 md:p-4 md:pt-0 lg:p-6 lg:pt-0">
         <div className="flex items-center gap-2 md:gap-3 lg:gap-4 text-xs text-muted-foreground flex-wrap">

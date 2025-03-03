@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { RecipeCard } from "@/components/RecipeCard";
 import { MOCK_RECIPES } from "@/lib/mock-data";
@@ -65,6 +64,24 @@ const Index = () => {
       thumbnail: "https://img.youtube.com/vi/0n47msSQllA/maxresdefault.jpg",
       url: "/food-videos"
     },
+    {
+      id: 4,
+      title: "Perfect Vegetable Curry",
+      thumbnail: "https://img.youtube.com/vi/yBsEcW-NqnU/maxresdefault.jpg",
+      url: "/food-videos"
+    },
+    {
+      id: 5,
+      title: "Chocolate Cake From Scratch",
+      thumbnail: "https://img.youtube.com/vi/dtyekBblwkA/maxresdefault.jpg",
+      url: "/food-videos"
+    },
+    {
+      id: 6,
+      title: "Easy Homemade Pizza Dough",
+      thumbnail: "https://img.youtube.com/vi/oWXjJt4SA0I/maxresdefault.jpg",
+      url: "/food-videos"
+    }
   ];
 
   return (
@@ -156,7 +173,7 @@ const Index = () => {
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {videos.map((video) => (
             <Link key={video.id} to={video.url}>
               <Card className="overflow-hidden group cursor-pointer transition-all hover:shadow-lg">
