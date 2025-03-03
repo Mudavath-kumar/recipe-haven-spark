@@ -10,6 +10,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import IndianRecipes from "./pages/IndianRecipes";
 import NewRecipes from "./pages/NewRecipes";
 import PopularRecipes from "./pages/PopularRecipes";
@@ -71,6 +73,8 @@ function App() {
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/indian-recipes" element={<IndianRecipes />} />
               <Route path="/new-recipes" element={<NewRecipes />} />
               <Route path="/popular-recipes" element={<PopularRecipes />} />
