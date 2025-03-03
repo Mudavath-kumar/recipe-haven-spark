@@ -15,9 +15,59 @@ interface RecipeCardProps {
   category: string;
 }
 
-const getPlaceholderImage = (category: string): string => {
-  // Use appropriate Unsplash food images based on category
-  const placeholders: Record<string, string> = {
+// Enhanced function to get appropriate image based on dish title and category
+const getRecipeImage = (title: string, category: string, providedImage: string): string => {
+  // If a specific image URL is provided and it's valid, use it
+  if (providedImage && !providedImage.includes("undefined") && providedImage.startsWith("http")) {
+    return providedImage;
+  }
+  
+  // Map specific dishes to specific images for accuracy
+  const dishSpecificImages: Record<string, string> = {
+    // Indian dishes
+    "Butter Chicken": "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db",
+    "Chicken Biryani": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8",
+    "Tandoori Chicken": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0",
+    "Paneer Tikka": "https://images.unsplash.com/photo-1565557623262-b51c2513a641",
+    "Palak Paneer": "https://images.unsplash.com/photo-1601050690597-df0568f70950",
+    "Chole Bhature": "https://images.unsplash.com/photo-1626132647957-5659d0bc9222",
+    "Dal Makhani": "https://images.unsplash.com/photo-1546833999-b9f581a1996d",
+    "Masala Dosa": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc",
+    "Biryani": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8",
+    
+    // Italian dishes
+    "Classic Margherita Pizza": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002",
+    "Mushroom Risotto": "https://images.unsplash.com/photo-1476124369491-e7addf5db371",
+    "Vegetable Lasagna": "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0",
+    "Chicken Alfredo Pasta": "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb",
+    
+    // Desserts
+    "Chocolate Chip Cookies": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e",
+    "Banana Bread": "https://images.unsplash.com/photo-1584736286279-4a5f6e2b0858",
+    "Tiramisu": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9",
+    "Red Velvet Cake": "https://images.unsplash.com/photo-1586788680434-30d324626f14",
+    "Mango Sticky Rice": "https://images.unsplash.com/photo-1565538810643-b5bdb714032a",
+    
+    // Salads
+    "Greek Salad": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe",
+    "Caesar Salad": "https://images.unsplash.com/photo-1546793665-c74683f339c1",
+    
+    // Asian dishes
+    "Beef Stir Fry": "https://images.unsplash.com/photo-1512058564366-18510be2db19",
+    "Thai Green Curry with Chicken": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd",
+    "Spicy Tuna Sushi Roll": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c",
+    
+    // Vegetarian
+    "Vegetable Curry": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd"
+  };
+
+  // If we have a specific image for this dish, use it
+  if (dishSpecificImages[title]) {
+    return dishSpecificImages[title];
+  }
+  
+  // Fallback to category-based images
+  const categoryImages: Record<string, string> = {
     'Indian': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9',
     'Italian': 'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb',
     'Chinese': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
@@ -30,7 +80,7 @@ const getPlaceholderImage = (category: string): string => {
     'default': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9'
   };
 
-  return placeholders[category] || placeholders.default;
+  return categoryImages[category] || categoryImages.default;
 };
 
 // Helper function to determine diet type based on category
@@ -100,11 +150,11 @@ export const RecipeCard = ({
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg h-full flex flex-col">
       <div className="relative aspect-video overflow-hidden">
         <img
-          src={image || getPlaceholderImage(category)}
+          src={getRecipeImage(title, category, image)}
           alt={title}
           className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
           onError={(e) => {
-            e.currentTarget.src = getPlaceholderImage(category);
+            e.currentTarget.src = getRecipeImage(title, category, "");
           }}
         />
         <div className="absolute top-2 right-2 flex flex-col gap-2">
