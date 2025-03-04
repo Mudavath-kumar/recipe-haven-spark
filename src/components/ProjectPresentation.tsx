@@ -224,7 +224,7 @@ const ProjectPresentation = () => {
               
               <h3 className="text-lg font-semibold mt-6">Performance Metrics</h3>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Average page load time: < 2 seconds</li>
+                <li>Average page load time: &lt; 2 seconds</li>
                 <li>Mobile responsiveness: Optimized for devices down to 320px width</li>
                 <li>Accessibility compliance: WCAG 2.1 AA standards</li>
               </ul>
