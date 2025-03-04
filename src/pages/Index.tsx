@@ -1,7 +1,8 @@
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RecipeCard } from "@/components/RecipeCard";
 import { MOCK_RECIPES } from "@/lib/mock-data";
+import ProjectPresentation from "@/components/ProjectPresentation";
 import { Button } from "@/components/ui/button";
 
 export default function Index() {
@@ -19,6 +20,10 @@ export default function Index() {
           Discover a world of delicious recipes from various cuisines. Whether you're looking for comfort food, 
           quick meals, or gourmet creations, we have something for everyone.
         </p>
+      </section>
+      
+      <section className="mb-12">
+        <ProjectPresentation />
       </section>
       
       <section>
