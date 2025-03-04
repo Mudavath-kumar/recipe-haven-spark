@@ -25,39 +25,40 @@ const getRecipeImage = (title: string, category: string, providedImage: string):
   // Map specific dishes to specific images for accuracy
   const dishSpecificImages: Record<string, string> = {
     // Indian dishes
-    "Butter Chicken": "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Chicken Biryani": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Tandoori Chicken": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Paneer Tikka": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Paneer Tikka Masala": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Palak Paneer": "https://images.unsplash.com/photo-1601050690597-df0568f70950?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Chole Bhature": "https://images.unsplash.com/photo-1626132647957-5659d0bc9222?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Dal Makhani": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Masala Dosa": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Biryani": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Vegetable Curry": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    "Butter Chicken": "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db",
+    "Chicken Biryani": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8",
+    "Tandoori Chicken": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0",
+    "Paneer Tikka": "https://images.unsplash.com/photo-1565557623262-b51c2513a641",
+    "Palak Paneer": "https://images.unsplash.com/photo-1601050690597-df0568f70950",
+    "Chole Bhature": "https://images.unsplash.com/photo-1626132647957-5659d0bc9222",
+    "Dal Makhani": "https://images.unsplash.com/photo-1546833999-b9f581a1996d",
+    "Masala Dosa": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc",
+    "Biryani": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8",
     
     // Italian dishes
-    "Classic Margherita Pizza": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Mushroom Risotto": "https://images.unsplash.com/photo-1476124369491-e7addf5db371?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Vegetable Lasagna": "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Chicken Alfredo Pasta": "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    "Classic Margherita Pizza": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002",
+    "Mushroom Risotto": "https://images.unsplash.com/photo-1476124369491-e7addf5db371",
+    "Vegetable Lasagna": "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0",
+    "Chicken Alfredo Pasta": "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb",
     
     // Desserts
-    "Chocolate Chip Cookies": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Banana Bread": "https://images.unsplash.com/photo-1584736286279-4a5f6e2b0858?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Tiramisu": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Red Velvet Cake": "https://images.unsplash.com/photo-1586788680434-30d324626f14?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Mango Sticky Rice": "https://images.unsplash.com/photo-1565538810643-b5bdb714032a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    "Chocolate Chip Cookies": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e",
+    "Banana Bread": "https://images.unsplash.com/photo-1584736286279-4a5f6e2b0858",
+    "Tiramisu": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9",
+    "Red Velvet Cake": "https://images.unsplash.com/photo-1586788680434-30d324626f14",
+    "Mango Sticky Rice": "https://images.unsplash.com/photo-1565538810643-b5bdb714032a",
     
     // Salads
-    "Greek Salad": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Caesar Salad": "https://images.unsplash.com/photo-1546793665-c74683f339c1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    "Greek Salad": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe",
+    "Caesar Salad": "https://images.unsplash.com/photo-1546793665-c74683f339c1",
     
     // Asian dishes
-    "Beef Stir Fry": "https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Thai Green Curry with Chicken": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "Spicy Tuna Sushi Roll": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+    "Beef Stir Fry": "https://images.unsplash.com/photo-1512058564366-18510be2db19",
+    "Thai Green Curry with Chicken": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd",
+    "Spicy Tuna Sushi Roll": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c",
+    
+    // Vegetarian
+    "Vegetable Curry": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd"
   };
 
   // If we have a specific image for this dish, use it
@@ -67,24 +68,24 @@ const getRecipeImage = (title: string, category: string, providedImage: string):
   
   // Fallback to category-based images
   const categoryImages: Record<string, string> = {
-    'Indian': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-    'Italian': 'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-    'Chinese': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-    'Desserts': 'https://images.unsplash.com/photo-1587314168485-3236d6710814?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-    'Baking': 'https://images.unsplash.com/photo-1495147466023-ac5c588e2e94?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-    'Salads': 'https://images.unsplash.com/photo-1540420773420-3366772f4999?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-    'Asian': 'https://images.unsplash.com/photo-1540648639573-8c848de23f0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-    'Vegetarian': 'https://images.unsplash.com/photo-1543362906-acfc16c67564?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-    'Non-Vegetarian': 'https://images.unsplash.com/photo-1607116667981-27b1f21c5c04?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-    'default': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+    'Indian': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9',
+    'Italian': 'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb',
+    'Chinese': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+    'Desserts': 'https://images.unsplash.com/photo-1587314168485-3236d6710814',
+    'Baking': 'https://images.unsplash.com/photo-1495147466023-ac5c588e2e94',
+    'Salads': 'https://images.unsplash.com/photo-1540420773420-3366772f4999',
+    'Asian': 'https://images.unsplash.com/photo-1540648639573-8c848de23f0a',
+    'Vegetarian': 'https://images.unsplash.com/photo-1543362906-acfc16c67564',
+    'Non-Vegetarian': 'https://images.unsplash.com/photo-1607116667981-27b1f21c5c04',
+    'default': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9'
   };
 
   return categoryImages[category] || categoryImages.default;
 };
 
-// Helper function to determine diet type based on category and title
+// Helper function to determine diet type based on category
 const getDietType = (category: string) => {
-  const vegetarianCategories = ['Salads', 'Vegetarian'];
+  const vegetarianCategories = ['Indian', 'Salads', 'Italian', 'Vegetarian'];
   const dessertCategories = ['Desserts', 'Baking'];
   
   // For Indian recipes, check the title to determine if it's vegetarian
@@ -110,7 +111,6 @@ const getDietType = (category: string) => {
     };
   }
   
-  // For other categories
   if (vegetarianCategories.includes(category)) {
     return () => ({
       type: 'vegetarian',

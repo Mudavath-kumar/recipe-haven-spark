@@ -84,9 +84,6 @@ const FoodVideos = () => {
                     src={video.thumbnail}
                     alt={video.title}
                     className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = "https://images.unsplash.com/photo-1495147466023-ac5c588e2e94"; // Fallback image
-                    }}
                   />
                   {activeVideo !== index && (
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
