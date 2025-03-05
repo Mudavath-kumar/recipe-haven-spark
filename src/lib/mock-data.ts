@@ -1,3 +1,4 @@
+<lov-code>
 export const MOCK_RECIPES = [
   {
     id: 1,
@@ -669,4 +670,4 @@ export const MOCK_RECIPES = [
     instructions: [
       "In a large bowl, beat egg yolks and sugar until pale and creamy",
       "Add mascarpone cheese and beat until smooth",
-      "In a separate bowl, whip heavy cream
+      "In a separate bowl,
