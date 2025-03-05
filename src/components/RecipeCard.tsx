@@ -47,6 +47,26 @@ const getRecipeImage = (title: string, category: string, providedImage: string):
     "Tiramisu": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9",
     "Red Velvet Cake": "https://images.unsplash.com/photo-1586788680434-30d324626f14",
     "Mango Sticky Rice": "https://images.unsplash.com/photo-1565538810643-b5bdb714032a",
+    "Chocolate Mousse": "https://images.unsplash.com/photo-1551529834-525807d6b4f3",
+    "Strawberry Cheesecake Ice Cream": "https://images.unsplash.com/photo-1579954115545-a95591f28bfc",
+    "Mint Chocolate Chip Ice Cream": "https://images.unsplash.com/photo-1563805042-7684c019e1cb",
+    "Belgian Chocolate Truffles": "https://images.unsplash.com/photo-1548329408-0bcd6e68058d",
+    "Classic Vanilla Ice Cream": "https://images.unsplash.com/photo-1566454419290-57a0af546ee1",
+    "Caramel Brownies": "https://images.unsplash.com/photo-1606313564200-e75d8e3eeee2",
+    "White Chocolate Raspberry Cookies": "https://images.unsplash.com/photo-1584736988828-55deffd6b197",
+    "Dark Chocolate Gelato": "https://images.unsplash.com/photo-1560008581-09826d1de69e",
+    "Key Lime Pie": "https://images.unsplash.com/photo-1608377205700-2d1a4dbf0805",
+    "Double Chocolate Chip Cookies": "https://images.unsplash.com/photo-1606312619070-d48b4c652a52",
+    "Pistachio Ice Cream": "https://images.unsplash.com/photo-1580915411954-282cb1b0d780",
+    "Chocolate Lava Cake": "https://images.unsplash.com/photo-1617305855058-336d24456869",
+    "Churros with Chocolate Sauce": "https://images.unsplash.com/photo-1624371414361-e670eaae4a90",
+    "Strawberry Pavlova": "https://images.unsplash.com/photo-1488477181946-6428a0291777",
+    "Coconut Panna Cotta": "https://images.unsplash.com/photo-1579954115563-e72bf1381629",
+    "Mango Sorbet": "https://images.unsplash.com/photo-1563805042-264978b57fc3",
+    "Matcha Green Tea Cupcakes": "https://images.unsplash.com/photo-1550617931-e17a7b70dce2",
+    "Raspberry White Chocolate Cheesecake": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad",
+    "Chocolate Hazelnut Gelato": "https://images.unsplash.com/photo-1567206563064-6f60f40a2b57",
+    "Baklava": "https://images.unsplash.com/photo-1519676867240-f03562e64548",
     
     // Salads
     "Greek Salad": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe",
@@ -146,15 +166,20 @@ export const RecipeCard = ({
   // Get diet info for this specific recipe
   const dietInfo = getDietTypeForTitle(title);
   
+  // Attempt to get the correct image or fallback to a category image
+  const displayImage = getRecipeImage(title, category, image);
+  
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg h-full flex flex-col">
       <div className="relative aspect-video overflow-hidden">
         <img
-          src={getRecipeImage(title, category, image)}
+          src={displayImage}
           alt={title}
           className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
           onError={(e) => {
-            e.currentTarget.src = getRecipeImage(title, category, "");
+            // If the image fails to load, try with a category default
+            e.currentTarget.src = getRecipeImage("", category, "");
           }}
         />
         <div className="absolute top-2 right-2 flex flex-col gap-2">
