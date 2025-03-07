@@ -1,4 +1,3 @@
-
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +35,6 @@ export const Navbar = () => {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   useEffect(() => {
-    // Check for active session
     const checkSession = async () => {
       try {
         const { data } = await supabase.auth.getSession();
@@ -50,14 +48,12 @@ export const Navbar = () => {
 
     checkSession();
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
       }
     );
 
-    // Clean up subscription
     return () => {
       subscription.unsubscribe();
     };
@@ -94,9 +90,8 @@ export const Navbar = () => {
     }
   };
 
-  // Navigation categories for dropdown menus
   const cuisineCategories = [
-    { to: "/indian-recipes", label: "Indian", icon: <ChefHat className="h-4 w-4 mr-2 text-amber-500" /> },
+    { to: "/popular-recipes?category=indian", label: "Indian", icon: <ChefHat className="h-4 w-4 mr-2 text-amber-500" /> },
     { to: "/popular-recipes?category=italian", label: "Italian", icon: <Pizza className="h-4 w-4 mr-2 text-red-500" /> },
     { to: "/popular-recipes?category=asian", label: "Asian", icon: <Utensils className="h-4 w-4 mr-2 text-emerald-500" /> },
     { to: "/popular-recipes?category=middle-eastern", label: "Middle Eastern", icon: <Coffee className="h-4 w-4 mr-2 text-amber-600" /> },
@@ -124,9 +119,7 @@ export const Navbar = () => {
             RecipeHaven
           </Link>
           
-          {/* Desktop Navigation with Dropdowns */}
           <div className="hidden md:flex items-center space-x-1">
-            {/* Cuisines Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="hover:bg-slate-100 transition-colors">
@@ -148,7 +141,6 @@ export const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Dietary Preferences Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="hover:bg-slate-100 transition-colors">
@@ -170,7 +162,6 @@ export const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Explore Section */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="hover:bg-slate-100 transition-colors">
@@ -197,7 +188,6 @@ export const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Direct Link to Indian Recipes with Badge */}
             <Link to="/indian-recipes" className="relative group">
               <Button variant="ghost" className="hover:bg-slate-100 transition-colors flex items-center">
                 <ChefHat className="mr-2 h-4 w-4 text-amber-500" />
@@ -212,7 +202,6 @@ export const Navbar = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          {/* Desktop Search */}
           <form onSubmit={handleSearch} className="relative hidden md:block md:w-64 lg:w-80">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -223,7 +212,6 @@ export const Navbar = () => {
             />
           </form>
           
-          {/* Mobile Search Toggle */}
           <Button
             variant="ghost"
             size="icon"
@@ -233,7 +221,6 @@ export const Navbar = () => {
             <Search className="h-5 w-5" />
           </Button>
           
-          {/* Auth Buttons */}
           {!loading && (
             <>
               {session ? (
@@ -281,7 +268,6 @@ export const Navbar = () => {
             </>
           )}
           
-          {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden">
@@ -395,7 +381,6 @@ export const Navbar = () => {
         </div>
       </div>
       
-      {/* Mobile Search Bar */}
       {showMobileSearch && (
         <div className="w-full px-4 py-2 bg-white md:hidden shadow-md">
           <form onSubmit={handleSearch} className="relative">
