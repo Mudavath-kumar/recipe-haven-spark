@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { RecipeCard } from "@/components/RecipeCard";
 import { MOCK_RECIPES } from "@/lib/mock-data";
@@ -67,7 +68,7 @@ const Index = () => {
     {
       id: 4,
       title: "Perfect Vegetable Curry",
-      thumbnail: "https://img.youtube.com/vi/yBsEcW-NqnU/maxresdefault.jpg",
+      thumbnail: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
       url: "/food-videos"
     },
     {
@@ -79,7 +80,7 @@ const Index = () => {
     {
       id: 6,
       title: "Easy Homemade Pizza Dough",
-      thumbnail: "https://img.youtube.com/vi/oWXjJt4SA0I/maxresdefault.jpg",
+      thumbnail: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb",
       url: "/food-videos"
     }
   ];
