@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://preview--recipe-haven-spark.lovable.app/
+**URL**: https://recipes-sharing-platform.netlify.app/
 
 ## How can I edit this code?
 
