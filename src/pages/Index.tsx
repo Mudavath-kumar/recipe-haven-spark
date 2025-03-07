@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { RecipeCard } from "@/components/RecipeCard";
 import { MOCK_RECIPES } from "@/lib/mock-data";
@@ -50,37 +49,37 @@ const Index = () => {
     {
       id: 1,
       title: "Quick & Easy Butter Chicken",
-      thumbnail: "https://img.youtube.com/vi/pqpDYRZ3pYQ/maxresdefault.jpg",
+      thumbnail: "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db",
       url: "/food-videos"
     },
     {
       id: 2,
       title: "Authentic Biryani Recipe",
-      thumbnail: "https://img.youtube.com/vi/nC5IFSnluZY/maxresdefault.jpg",
+      thumbnail: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8",
       url: "/food-videos"
     },
     {
       id: 3,
       title: "Homemade Naan Bread Recipe",
-      thumbnail: "https://img.youtube.com/vi/0n47msSQllA/maxresdefault.jpg",
+      thumbnail: "https://images.unsplash.com/photo-1584906093595-6b488e7f3c8e",
       url: "/food-videos"
     },
     {
       id: 4,
       title: "Perfect Vegetable Curry",
-      thumbnail: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
+      thumbnail: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd",
       url: "/food-videos"
     },
     {
       id: 5,
       title: "Chocolate Cake From Scratch",
-      thumbnail: "https://img.youtube.com/vi/dtyekBblwkA/maxresdefault.jpg",
+      thumbnail: "https://images.unsplash.com/photo-1578985545062-69928b1d9587",
       url: "/food-videos"
     },
     {
       id: 6,
       title: "Easy Homemade Pizza Dough",
-      thumbnail: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb",
+      thumbnail: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002",
       url: "/food-videos"
     }
   ];
