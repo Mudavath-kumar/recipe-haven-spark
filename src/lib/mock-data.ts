@@ -1,4 +1,4 @@
-
+<lov-code>
 export const MOCK_RECIPES = [
   {
     id: 1,
@@ -670,15 +670,4 @@ export const MOCK_RECIPES = [
     instructions: [
       "In a large bowl, beat egg yolks and sugar until pale and creamy",
       "Add mascarpone cheese and beat until smooth",
-      "In a separate bowl, whip heavy cream until stiff peaks form",
-      "Gently fold whipped cream into mascarpone mixture",
-      "In a shallow dish, combine coffee and alcohol if using",
-      "Quickly dip each ladyfinger into coffee mixture and arrange in a single layer in a 9x13 dish",
-      "Spread half of the mascarpone mixture over the ladyfingers",
-      "Add another layer of dipped ladyfingers",
-      "Top with remaining mascarpone mixture",
-      "Dust with cocoa powder and refrigerate for at least 4 hours",
-      "Garnish with grated chocolate before serving"
-    ]
-  }
-];
+      "In a separate bowl,
