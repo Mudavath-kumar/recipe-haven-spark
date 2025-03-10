@@ -19,7 +19,6 @@ import RecipeDetail from "./pages/RecipeDetail";
 import FoodVideos from "./pages/FoodVideos";
 import SearchResults from "./pages/SearchResults";
 import AddRecipe from "./pages/AddRecipe";
-import Calculator from "./components/Calculator";
 import { supabase } from "./integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 
@@ -82,7 +81,6 @@ function App() {
               <Route path="/recipe/:id" element={<RecipeDetail />} />
               <Route path="/food-videos" element={<FoodVideos />} />
               <Route path="/search" element={<SearchResults />} />
-              <Route path="/calculator" element={<Calculator />} />
               <Route
                 path="/add-recipe"
                 element={
