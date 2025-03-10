@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { PlayCircle, Search, Utensils, Clock, ThumbsUp, Salad, Drumstick, Cake } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CalculatorRecipes from "@/components/CalculatorRecipes";
 
 const Index = () => {
   const [category, setCategory] = useState<string>("all");
@@ -25,25 +26,25 @@ const Index = () => {
     page * itemsPerPage
   );
 
-  // Get vegetarian recipes
+  // Get vegetarian recipes - updated to include 5 recipes
   const vegetarianRecipes = MOCK_RECIPES.filter(recipe => 
     recipe.category === "Indian" || 
     recipe.category === "Salads" || 
     recipe.category === "Italian" || 
     recipe.category === "Vegetarian"
-  ).slice(0, 3);
+  ).slice(0, 5);
 
-  // Get non-vegetarian recipes
+  // Get non-vegetarian recipes - updated to include 5 recipes
   const nonVegetarianRecipes = MOCK_RECIPES.filter(recipe => 
     recipe.category === "Asian" || 
     (recipe.title && recipe.title.includes("Chicken"))
-  ).slice(0, 3);
+  ).slice(0, 5);
 
-  // Get dessert recipes
+  // Get dessert recipes - updated to include 5 recipes
   const dessertRecipes = MOCK_RECIPES.filter(recipe => 
     recipe.category === "Desserts" || 
     recipe.category === "Baking"
-  ).slice(0, 3);
+  ).slice(0, 5);
 
   const videos = [
     {
@@ -61,7 +62,7 @@ const Index = () => {
     {
       id: 3,
       title: "Homemade Naan Bread Recipe",
-      thumbnail: "https://images.unsplash.com/photo-1584906093595-6b488e7f3c8e",
+      thumbnail: "https://images.unsplash.com/photo-1584906093595-6b488e7f3c8e", // Updated with better naan bread image
       url: "/food-videos"
     },
     {
@@ -163,6 +164,9 @@ const Index = () => {
           </Card>
         </div>
       </section>
+
+      {/* Calculator Inspired Recipes Section - NEW SECTION */}
+      <CalculatorRecipes />
 
       {/* Featured Videos Section */}
       <section className="space-y-6 px-4 md:px-6">
@@ -268,7 +272,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="vegetarian" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 md:gap-8">
               {vegetarianRecipes.map((recipe, index) => (
                 <div key={recipe.id} className="animate-in slide-in-from-bottom-4" style={{ animationDelay: `${index * 100}ms` }}>
                   <RecipeCard {...recipe} />
@@ -283,7 +287,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="non-vegetarian" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 md:gap-8">
               {nonVegetarianRecipes.map((recipe, index) => (
                 <div key={recipe.id} className="animate-in slide-in-from-bottom-4" style={{ animationDelay: `${index * 100}ms` }}>
                   <RecipeCard {...recipe} />
@@ -298,7 +302,7 @@ const Index = () => {
           </TabsContent>
           
           <TabsContent value="desserts" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 md:gap-8">
               {dessertRecipes.map((recipe, index) => (
                 <div key={recipe.id} className="animate-in slide-in-from-bottom-4" style={{ animationDelay: `${index * 100}ms` }}>
                   <RecipeCard {...recipe} />
