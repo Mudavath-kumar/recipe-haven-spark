@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, ChefHat, Calculator } from "lucide-react";
+import CalculatorComponent from './Calculator';
 
 interface CalculatorRecipe {
   id: number;
@@ -203,42 +204,50 @@ const CalculatorRecipes = () => {
         </Button>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-        {calculatorRecipes.map((recipe, index) => (
-          <Link to={`/recipe/${recipe.id}`} key={recipe.id}>
-            <Card className="h-full overflow-hidden hover:shadow-lg transition-all duration-300">
-              <div className="aspect-video relative overflow-hidden">
-                <img 
-                  src={recipe.image} 
-                  alt={recipe.title} 
-                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                />
-                <div className="absolute bottom-0 left-0 w-full p-2 bg-gradient-to-t from-black/70 to-transparent">
-                  <div className="flex items-center gap-2 text-white">
-                    <Clock className="h-4 w-4" />
-                    <span className="text-sm font-medium">{recipe.time}</span>
-                    {recipe.difficulty && (
-                      <>
-                        <span className="mx-1">•</span>
-                        <ChefHat className="h-4 w-4" />
-                        <span className="text-sm font-medium">{recipe.difficulty}</span>
-                      </>
-                    )}
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+        {/* Calculator Column */}
+        <div className="col-span-1 md:col-span-1">
+          <CalculatorComponent />
+        </div>
+        
+        {/* Recipes Column */}
+        <div className="col-span-1 md:col-span-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
+          {calculatorRecipes.map((recipe, index) => (
+            <Link to={`/recipe/${recipe.id}`} key={recipe.id}>
+              <Card className="h-full overflow-hidden hover:shadow-lg transition-all duration-300">
+                <div className="aspect-video relative overflow-hidden">
+                  <img 
+                    src={recipe.image} 
+                    alt={recipe.title} 
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                  <div className="absolute bottom-0 left-0 w-full p-2 bg-gradient-to-t from-black/70 to-transparent">
+                    <div className="flex items-center gap-2 text-white">
+                      <Clock className="h-4 w-4" />
+                      <span className="text-sm font-medium">{recipe.time}</span>
+                      {recipe.difficulty && (
+                        <>
+                          <span className="mx-1">•</span>
+                          <ChefHat className="h-4 w-4" />
+                          <span className="text-sm font-medium">{recipe.difficulty}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-lg mb-1 line-clamp-1">{recipe.title}</h3>
-                <p className="text-muted-foreground text-sm line-clamp-2">{recipe.description}</p>
-                <div className="mt-2">
-                  <span className="inline-block px-2 py-1 text-xs bg-recipe-100 text-recipe-800 rounded-full">
-                    {recipe.category}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-lg mb-1 line-clamp-1">{recipe.title}</h3>
+                  <p className="text-muted-foreground text-sm line-clamp-2">{recipe.description}</p>
+                  <div className="mt-2">
+                    <span className="inline-block px-2 py-1 text-xs bg-recipe-100 text-recipe-800 rounded-full">
+                      {recipe.category}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   );
