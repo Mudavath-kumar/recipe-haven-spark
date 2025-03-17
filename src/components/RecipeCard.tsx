@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Clock, Users, Salad, Drumstick, Cake } from "lucide-react";
+import { getRecipeImage } from "@/lib/imageUtils";
 
 interface RecipeCardProps {
   id: string | number;
@@ -14,94 +15,6 @@ interface RecipeCardProps {
   servings: number;
   category: string;
 }
-
-// Enhanced function to get appropriate image based on dish title and category
-const getRecipeImage = (title: string, category: string, providedImage: string): string => {
-  // If a specific image URL is provided and it's valid, use it
-  if (providedImage && !providedImage.includes("undefined") && providedImage.startsWith("http")) {
-    return providedImage;
-  }
-  
-  // Map specific dishes to specific images for accuracy
-  const dishSpecificImages: Record<string, string> = {
-    // Indian dishes
-    "Butter Chicken": "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db",
-    "Chicken Biryani": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8",
-    "Tandoori Chicken": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0",
-    "Paneer Tikka": "https://images.unsplash.com/photo-1565557623262-b51c2513a641",
-    "Palak Paneer": "https://images.unsplash.com/photo-1601050690597-df0568f70950",
-    "Chole Bhature": "https://images.unsplash.com/photo-1626132647957-5659d0bc9222",
-    "Dal Makhani": "https://images.unsplash.com/photo-1546833999-b9f581a1996d",
-    "Masala Dosa": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc",
-    "Biryani": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8",
-    
-    // Italian dishes
-    "Classic Margherita Pizza": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002",
-    "Mushroom Risotto": "https://images.unsplash.com/photo-1476124369491-e7addf5db371",
-    "Vegetable Lasagna": "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0",
-    "Chicken Alfredo Pasta": "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb",
-    
-    // Desserts
-    "Chocolate Chip Cookies": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e",
-    "Banana Bread": "https://images.unsplash.com/photo-1584736286279-4a5f6e2b0858",
-    "Tiramisu": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9",
-    "Red Velvet Cake": "https://images.unsplash.com/photo-1586788680434-30d324626f14",
-    "Mango Sticky Rice": "https://images.unsplash.com/photo-1565538810643-b5bdb714032a",
-    "Chocolate Mousse": "https://images.unsplash.com/photo-1551529834-525807d6b4f3",
-    "Strawberry Cheesecake Ice Cream": "https://images.unsplash.com/photo-1579954115545-a95591f28bfc",
-    "Mint Chocolate Chip Ice Cream": "https://images.unsplash.com/photo-1563805042-7684c019e1cb",
-    "Belgian Chocolate Truffles": "https://images.unsplash.com/photo-1548329408-0bcd6e68058d",
-    "Classic Vanilla Ice Cream": "https://images.unsplash.com/photo-1566454419290-57a0af546ee1",
-    "Caramel Brownies": "https://images.unsplash.com/photo-1606313564200-e75d8e3eeee2",
-    "White Chocolate Raspberry Cookies": "https://images.unsplash.com/photo-1584736988828-55deffd6b197",
-    "Dark Chocolate Gelato": "https://images.unsplash.com/photo-1560008581-09826d1de69e",
-    "Key Lime Pie": "https://images.unsplash.com/photo-1608377205700-2d1a4dbf0805",
-    "Double Chocolate Chip Cookies": "https://images.unsplash.com/photo-1606312619070-d48b4c652a52",
-    "Pistachio Ice Cream": "https://images.unsplash.com/photo-1580915411954-282cb1b0d780",
-    "Chocolate Lava Cake": "https://images.unsplash.com/photo-1617305855058-336d24456869",
-    "Churros with Chocolate Sauce": "https://images.unsplash.com/photo-1624371414361-e670eaae4a90",
-    "Strawberry Pavlova": "https://images.unsplash.com/photo-1488477181946-6428a0291777",
-    "Coconut Panna Cotta": "https://images.unsplash.com/photo-1579954115563-e72bf1381629",
-    "Mango Sorbet": "https://images.unsplash.com/photo-1563805042-264978b57fc3",
-    "Matcha Green Tea Cupcakes": "https://images.unsplash.com/photo-1550617931-e17a7b70dce2",
-    "Raspberry White Chocolate Cheesecake": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad",
-    "Chocolate Hazelnut Gelato": "https://images.unsplash.com/photo-1567206563064-6f60f40a2b57",
-    "Baklava": "https://images.unsplash.com/photo-1519676867240-f03562e64548",
-    
-    // Salads
-    "Greek Salad": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe",
-    "Caesar Salad": "https://images.unsplash.com/photo-1546793665-c74683f339c1",
-    
-    // Asian dishes
-    "Beef Stir Fry": "https://images.unsplash.com/photo-1512058564366-18510be2db19",
-    "Thai Green Curry with Chicken": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd",
-    "Spicy Tuna Sushi Roll": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c",
-    
-    // Vegetarian
-    "Vegetable Curry": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd"
-  };
-
-  // If we have a specific image for this dish, use it
-  if (dishSpecificImages[title]) {
-    return dishSpecificImages[title];
-  }
-  
-  // Fallback to category-based images
-  const categoryImages: Record<string, string> = {
-    'Indian': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9',
-    'Italian': 'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb',
-    'Chinese': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-    'Desserts': 'https://images.unsplash.com/photo-1587314168485-3236d6710814',
-    'Baking': 'https://images.unsplash.com/photo-1495147466023-ac5c588e2e94',
-    'Salads': 'https://images.unsplash.com/photo-1540420773420-3366772f4999',
-    'Asian': 'https://images.unsplash.com/photo-1540648639573-8c848de23f0a',
-    'Vegetarian': 'https://images.unsplash.com/photo-1543362906-acfc16c67564',
-    'Non-Vegetarian': 'https://images.unsplash.com/photo-1607116667981-27b1f21c5c04',
-    'default': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9'
-  };
-
-  return categoryImages[category] || categoryImages.default;
-};
 
 // Helper function to determine diet type based on category
 const getDietType = (category: string) => {

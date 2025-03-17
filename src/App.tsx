@@ -21,6 +21,7 @@ import SearchResults from "./pages/SearchResults";
 import AddRecipe from "./pages/AddRecipe";
 import { supabase } from "./integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
+import { preloadCommonRecipeImages } from "./lib/imageUtils";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,9 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Preload common images to improve initial loading experience
+    preloadCommonRecipeImages();
+    
     // Check for active session
     const checkSession = async () => {
       try {

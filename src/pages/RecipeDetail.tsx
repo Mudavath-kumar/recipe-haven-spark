@@ -23,6 +23,8 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { INDIAN_RECIPES } from "./IndianRecipes";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getRecipeImage } from "@/lib/imageUtils";
+import { useEffect } from "react";
 
 type Ingredient = {
   name: string;
@@ -52,63 +54,6 @@ type MockRecipe = {
   category: string;
   ingredients?: string[];
   instructions?: string[];
-};
-
-const DISH_SPECIFIC_IMAGES: Record<string, string> = {
-  "Butter Chicken": "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db",
-  "Chicken Biryani": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8",
-  "Tandoori Chicken": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0",
-  "Paneer Tikka": "https://images.unsplash.com/photo-1565557623262-b51c2513a641",
-  "Palak Paneer": "https://images.unsplash.com/photo-1601050690597-df0568f70950",
-  "Chole Bhature": "https://images.unsplash.com/photo-1626132647957-5659d0bc9222",
-  "Dal Makhani": "https://images.unsplash.com/photo-1546833999-b9f581a1996d",
-  "Masala Dosa": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc",
-  "Biryani": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8",
-  
-  "Classic Margherita Pizza": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002",
-  "Mushroom Risotto": "https://images.unsplash.com/photo-1476124369491-e7addf5db371",
-  "Vegetable Lasagna": "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0",
-  "Chicken Alfredo Pasta": "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb",
-  
-  "Chocolate Chip Cookies": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e",
-  "Banana Bread": "https://images.unsplash.com/photo-1584736286279-4a5f6e2b0858",
-  "Tiramisu": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9",
-  "Red Velvet Cake": "https://images.unsplash.com/photo-1586788680434-30d324626f14",
-  "Mango Sticky Rice": "https://images.unsplash.com/photo-1565538810643-b5bdb714032a",
-  
-  "Greek Salad": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe",
-  "Caesar Salad": "https://images.unsplash.com/photo-1546793665-c74683f339c1",
-  
-  "Beef Stir Fry": "https://images.unsplash.com/photo-1512058564366-18510be2db19",
-  "Thai Green Curry with Chicken": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd",
-  "Spicy Tuna Sushi Roll": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c",
-  
-  "Vegetable Curry": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd"
-};
-
-const getRecipeImage = (title: string, category: string, providedImage: string): string => {
-  if (providedImage && !providedImage.includes("undefined") && providedImage.startsWith("http")) {
-    return providedImage;
-  }
-  
-  if (DISH_SPECIFIC_IMAGES[title]) {
-    return DISH_SPECIFIC_IMAGES[title];
-  }
-  
-  const categoryImages: Record<string, string> = {
-    'Indian': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9',
-    'Italian': 'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb',
-    'Chinese': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-    'Desserts': 'https://images.unsplash.com/photo-1587314168485-3236d6710814',
-    'Baking': 'https://images.unsplash.com/photo-1495147466023-ac5c588e2e94',
-    'Salads': 'https://images.unsplash.com/photo-1540420773420-3366772f4999',
-    'Asian': 'https://images.unsplash.com/photo-1540648639573-8c848de23f0a',
-    'Vegetarian': 'https://images.unsplash.com/photo-1543362906-acfc16c67564',
-    'Non-Vegetarian': 'https://images.unsplash.com/photo-1607116667981-27b1f21c5c04',
-    'default': 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9'
-  };
-
-  return categoryImages[category] || categoryImages.default;
 };
 
 const DEFAULT_INGREDIENTS: Record<string, string[]> = {
@@ -203,6 +148,15 @@ const RecipeDetail = () => {
   const mockRecipe = !indianRecipe ? MOCK_RECIPES.find(r => r.id === Number(id)) as MockRecipe : null;
   
   const recipe = indianRecipe || mockRecipe;
+
+  useEffect(() => {
+    if (recipe) {
+      MOCK_RECIPES.slice(0, 3).forEach(relatedRecipe => {
+        const img = new Image();
+        img.src = getRecipeImage(relatedRecipe.title, relatedRecipe.category, relatedRecipe.image);
+      });
+    }
+  }, [recipe]);
 
   const handleShare = async () => {
     try {
@@ -367,6 +321,9 @@ const RecipeDetail = () => {
           src={imageSrc}
           alt={recipe.title}
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            e.currentTarget.src = getRecipeImage("", recipe.category, "");
+          }}
         />
       </div>
 
@@ -489,6 +446,10 @@ const RecipeDetail = () => {
                   src={getRecipeImage(relatedRecipe.title, relatedRecipe.category, relatedRecipe.image)}
                   alt={relatedRecipe.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.src = getRecipeImage("", relatedRecipe.category, "");
+                  }}
                 />
               </div>
               <div className="p-3 md:p-4">
