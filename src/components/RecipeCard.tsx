@@ -89,21 +89,18 @@ export const RecipeCard = ({
   const displayImage = getRecipeImage(title, category, image);
   
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg h-full flex flex-col will-change-transform">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg h-full flex flex-col">
       <div className="relative aspect-video overflow-hidden">
-        {/* Pre-reserve space for image with min-height to prevent layout shifts */}
-        <div className="w-full h-full min-h-[200px] bg-muted/20">
-          <img
-            src={displayImage}
-            alt={title}
-            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-            onError={(e) => {
-              // If the image fails to load, try with a category default
-              e.currentTarget.src = getRecipeImage("", category, "");
-            }}
-          />
-        </div>
+        <img
+          src={displayImage}
+          alt={title}
+          className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+          onError={(e) => {
+            // If the image fails to load, try with a category default
+            e.currentTarget.src = getRecipeImage("", category, "");
+          }}
+        />
         <div className="absolute top-2 right-2 flex flex-col gap-2">
           <Badge className="bg-white/90 text-xs">{category}</Badge>
           <Badge 

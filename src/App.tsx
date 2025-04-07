@@ -23,7 +23,6 @@ import AddRecipe from "./pages/AddRecipe";
 import { supabase } from "./integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { preloadCommonRecipeImages } from "./lib/imageUtils";
-import { preloadAnimatedElements } from "./lib/smoothScrollUtils";
 
 const queryClient = new QueryClient();
 
@@ -34,9 +33,6 @@ function App() {
   useEffect(() => {
     // Preload common images to improve initial loading experience
     preloadCommonRecipeImages();
-    
-    // Preload and animate elements that are already visible
-    preloadAnimatedElements();
     
     // Check for active session
     const checkSession = async () => {
