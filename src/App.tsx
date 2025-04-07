@@ -4,9 +4,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import { NavbarWithTheme } from "./components/NavbarWithTheme";
+import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
-import { ThemeProvider } from "./components/ThemeProvider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -70,39 +69,37 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light">
-        <Router>
-          <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
-            <NavbarWithTheme />
-            <main className="flex-1 mt-16">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/indian-recipes" element={<IndianRecipes />} />
-                <Route path="/new-recipes" element={<NewRecipes />} />
-                <Route path="/popular-recipes" element={<PopularRecipes />} />
-                <Route path="/recipe/:id" element={<RecipeDetail />} />
-                <Route path="/food-videos" element={<FoodVideos />} />
-                <Route path="/search" element={<SearchResults />} />
-                <Route
-                  path="/add-recipe"
-                  element={
-                    <ProtectedRoute>
-                      <AddRecipe />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-          <Toaster position="top-right" richColors />
-        </Router>
-      </ThemeProvider>
+      <Router>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <main className="flex-1 mt-16">
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/indian-recipes" element={<IndianRecipes />} />
+              <Route path="/new-recipes" element={<NewRecipes />} />
+              <Route path="/popular-recipes" element={<PopularRecipes />} />
+              <Route path="/recipe/:id" element={<RecipeDetail />} />
+              <Route path="/food-videos" element={<FoodVideos />} />
+              <Route path="/search" element={<SearchResults />} />
+              <Route
+                path="/add-recipe"
+                element={
+                  <ProtectedRoute>
+                    <AddRecipe />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+        <Toaster position="top-right" richColors />
+      </Router>
     </QueryClientProvider>
   );
 }

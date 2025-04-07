@@ -1,4 +1,3 @@
-import { ADDITIONAL_RECIPES } from "./additionalRecipes";
 
 export const MOCK_RECIPES = [
   {
@@ -341,7 +340,7 @@ export const MOCK_RECIPES = [
       "Add onion and sauté until golden brown",
       "Add ginger-garlic paste and green chili. Cook for 1 minute",
       "Add tomato puree and cook until oil separates",
-      "Add all the spice powders and mix well",
+      "Add red chili powder and salt. Mix well",
       "Add cooked lentils and kidney beans with their liquid",
       "Simmer on low heat for 20-25 minutes, stirring occasionally",
       "Add garam masala and dried fenugreek leaves",
@@ -469,7 +468,7 @@ export const MOCK_RECIPES = [
       "3 cloves garlic, minced",
       "1 tbsp ginger, grated",
       "2 green chilies, slit",
-      "2 tbsp tandoori masala",
+      "1 tbsp tandoori masala",
       "1 tsp garam masala",
       "1 tsp cumin powder",
       "1 tsp coriander powder",
@@ -1064,6 +1063,5 @@ export const MOCK_RECIPES = [
       "Serve immediately with extra parmesan on top",
       "For added protein, top with grilled chicken or shrimp"
     ]
-  },
-  ...ADDITIONAL_RECIPES
+  }
 ];
