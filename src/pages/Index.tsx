@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { 
   PlayCircle, Search, Utensils, Clock, ThumbsUp, Salad, Drumstick, 
-  Cake, ChefHat, Award, Calendar, BookOpen, TrendingUp, Heart, Coffee 
+  Cake, ChefHat, Award, Calendar, BookOpen, TrendingUp, Heart, Coffee, Eye 
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { smoothScrollToTop, observeElementsInView } from "@/lib/smoothScrollUtils";
