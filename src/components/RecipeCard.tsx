@@ -14,9 +14,6 @@ interface RecipeCardProps {
   time: string;
   servings: number;
   category: string;
-  showBadge?: boolean;
-  badgeText?: string;
-  badgeColor?: string;
 }
 
 // Helper function to determine diet type based on category
@@ -76,9 +73,6 @@ export const RecipeCard = ({
   time,
   servings,
   category,
-  showBadge = false,
-  badgeText,
-  badgeColor = "bg-recipe-500",
 }: RecipeCardProps) => {
   // Get diet type function based on category
   const getDietTypeForTitle = getDietType(category);
@@ -117,11 +111,6 @@ export const RecipeCard = ({
               {dietInfo.label}
             </span>
           </Badge>
-          {showBadge && badgeText && (
-            <Badge className={`${badgeColor} text-white`}>
-              {badgeText}
-            </Badge>
-          )}
         </div>
       </div>
       <CardHeader className="flex-grow p-3 md:p-4 lg:p-6">
