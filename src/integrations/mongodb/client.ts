@@ -1,43 +1,56 @@
 
-import { MongoClient, ServerApiVersion } from 'mongodb';
+// This is a placeholder file for MongoDB integration
+// In a real application, you would need a backend API to interact with MongoDB
+// Direct MongoDB connections from the browser are not possible
 
-const MONGODB_URI = "mongodb+srv://bycoderun:FaImdYJaRQx2bdwi@cluster0.zsov2sv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(MONGODB_URI, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-// Export database collections for use throughout the application
-export async function connectToMongoDB() {
-  try {
-    // Connect the client to the server
-    await client.connect();
-    console.log("Connected to MongoDB!");
-    return client;
-  } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
-    throw error;
-  }
-}
-
-// Database instance
-const db = client.db("recipes_app");
-
-// Collections
 export const collections = {
-  recipes: db.collection("recipes"),
-  users: db.collection("users"),
-  ingredients: db.collection("ingredients"),
-  comments: db.collection("comments"),
-  likes: db.collection("likes"),
+  recipes: {
+    find: () => {
+      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+      return { toArray: () => Promise.resolve([]) };
+    },
+    findOne: () => {
+      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+      return Promise.resolve(null);
+    }
+  },
+  users: {
+    find: () => {
+      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+      return { toArray: () => Promise.resolve([]) };
+    },
+    findOne: () => {
+      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+      return Promise.resolve(null);
+    }
+  },
+  ingredients: {
+    find: () => {
+      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+      return { toArray: () => Promise.resolve([]) };
+    }
+  },
+  comments: {
+    find: () => {
+      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+      return { toArray: () => Promise.resolve([]) };
+    }
+  },
+  likes: {
+    find: () => {
+      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+      return { toArray: () => Promise.resolve([]) };
+    }
+  }
 };
 
-// Initialize connection when module is imported
-connectToMongoDB().catch(console.error);
+export const connectToMongoDB = async () => {
+  console.warn("MongoDB connections should be handled by a backend API, not directly in the browser.");
+  console.log("Mocking MongoDB connection for development purposes");
+  return null;
+};
 
-export { client as mongoClient };
+export const mongoClient = {
+  connect: () => Promise.resolve(null),
+  db: () => ({ collection: () => ({}) })
+};

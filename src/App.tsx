@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
@@ -20,13 +21,12 @@ import FoodVideos from "./pages/FoodVideos";
 import SearchResults from "./pages/SearchResults";
 import AddRecipe from "./pages/AddRecipe";
 import Calculator from "./pages/Calculator";
-import { connectToMongoDB } from "./integrations/mongodb/client";
 
+// Create a query client without dependencies on backend
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: false,
-      // Don't refetch on window focus
       refetchOnWindowFocus: false
     },
   },
@@ -35,42 +35,25 @@ const queryClient = new QueryClient({
 function App() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Initialize MongoDB connection
-    const initMongoDB = async () => {
-      try {
-        console.log("Connecting to MongoDB...");
-        await connectToMongoDB();
-        console.log("MongoDB connection successful");
-        
-        // You would implement your auth check here
-        // For now, we'll just set loading to false
-        setLoading(false);
-      } catch (error) {
-        console.error("Error initializing MongoDB:", error);
-        setError("Failed to connect to the database. Please try again later.");
-        setLoading(false);
-      }
-    };
-
-    initMongoDB();
-
+    console.log("App initializing...");
+    
     // For now, we'll use localStorage for basic auth
     try {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         setUser(JSON.parse(storedUser));
       }
-      if (!loading) setLoading(false);
     } catch (error) {
       console.error("Error parsing stored user:", error);
+    } finally {
+      // Always finish loading after checking local storage
       setLoading(false);
     }
   }, []);
 
-  // Function to handle login (to be passed to Login component)
+  // Function to handle login
   const handleLogin = (userData: any) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
@@ -88,22 +71,6 @@ function App() {
     if (!user) return <Navigate to="/login" replace />;
     return <>{children}</>;
   };
-
-  // If there's an error, display it
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center flex-col p-4 text-center">
-        <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
-        <p className="mb-4">{error}</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Reload Application
-        </button>
-      </div>
-    );
-  }
 
   // If still loading, display a loading message
   if (loading) {
