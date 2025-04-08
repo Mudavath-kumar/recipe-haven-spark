@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { RecipeCard } from "@/components/RecipeCard";
@@ -37,6 +36,8 @@ const MOCK_RECIPES = [
 
 const searchRecipes = async (query: string) => {
   try {
+    console.log("Searching for recipes with query:", query);
+    
     // Try to search in MongoDB
     const recipesFromDB = await collections.recipes.find({
       $or: [
@@ -46,14 +47,16 @@ const searchRecipes = async (query: string) => {
       ]
     }).toArray();
     
+    console.log("MongoDB results:", recipesFromDB.length);
+    
     // If we got results from MongoDB, return them
     if (recipesFromDB && recipesFromDB.length > 0) {
       return recipesFromDB.map((doc: WithId<Document>) => {
-        // Cast the document to a partial Recipe type to ensure we have the right fields
-        const recipe = doc as unknown as Partial<Recipe> & WithId<Document>;
+        // Cast the document to Recipe type with proper type safety
+        const recipe = doc as unknown as (Partial<Recipe> & WithId<Document>);
         
         return {
-          id: recipe._id?.toString() || recipe.id || '',
+          id: recipe._id?.toString() || '',
           title: recipe.title || 'Untitled Recipe',
           description: recipe.description || 'No description available',
           image: recipe.image_url || '',
@@ -64,6 +67,8 @@ const searchRecipes = async (query: string) => {
         };
       });
     }
+    
+    console.log("Falling back to mock data");
     
     // Otherwise search in our mock data
     const mockResults = [
@@ -121,6 +126,7 @@ const SearchResults = () => {
 
   useEffect(() => {
     if (query) {
+      console.log("Query changed, refetching results for:", query);
       refetch();
     }
   }, [query, refetch]);

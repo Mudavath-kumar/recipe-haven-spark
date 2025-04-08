@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ChefHat, Search, User, LogOut, LogIn } from "lucide-react";
+import { ChefHat, Search, User, LogOut, LogIn, Calculator } from "lucide-react";
 
 interface NavbarWithThemeProps {
   user: any;
@@ -53,6 +53,10 @@ export const NavbarWithTheme = ({ user, onLogout }: NavbarWithThemeProps) => {
             <Link to="/food-videos" className="text-sm font-medium hover:text-recipe-700 dark:hover:text-recipe-400 transition-colors">
               Videos
             </Link>
+            <Link to="/calculator" className="text-sm font-medium hover:text-recipe-700 dark:hover:text-recipe-400 transition-colors flex items-center gap-1">
+              <Calculator className="h-4 w-4" />
+              Calculator
+            </Link>
           </div>
         </div>
         
@@ -82,6 +86,12 @@ export const NavbarWithTheme = ({ user, onLogout }: NavbarWithThemeProps) => {
                 <Link to="/add-recipe" className="flex items-center gap-2 cursor-pointer">
                   <ChefHat className="h-4 w-4" />
                   <span>Add Recipe</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/calculator" className="flex items-center gap-2 cursor-pointer">
+                  <Calculator className="h-4 w-4" />
+                  <span>Calculator</span>
                 </Link>
               </DropdownMenuItem>
               {!user ? (
