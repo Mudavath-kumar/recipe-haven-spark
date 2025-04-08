@@ -6,10 +6,8 @@ import {
   ChefHat, Heart, Award, Clock, Coffee, Utensils, Pizza, 
   BookOpen, TrendingUp, Calendar
 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { Session } from "@supabase/supabase-js";
+import { useState } from "react";
+import { toast } from "sonner";
 import { 
   Sheet,
   SheetContent,
@@ -29,35 +27,21 @@ import { Badge } from "@/components/ui/badge";
 export const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
-
-  useEffect(() => {
-    const checkSession = async () => {
+  
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
       try {
-        const { data } = await supabase.auth.getSession();
-        setSession(data.session);
+        return JSON.parse(storedUser);
       } catch (error) {
-        console.error("Error checking session:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error parsing stored user:", error);
+        return null;
       }
-    };
-
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+    }
+    return null;
+  });
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,29 +49,15 @@ export const Navbar = () => {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setShowMobileSearch(false);
     } else {
-      toast({
-        title: "Search Error",
-        description: "Please enter a search term",
-        variant: "destructive",
-      });
+      toast.error("Please enter a search term");
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Logged out successfully",
-        description: "You have been logged out of your account",
-      });
-      navigate("/login");
-    } catch (error) {
-      toast({
-        title: "Error logging out",
-        description: "There was a problem logging out. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+    toast.success("Logged out successfully");
+    navigate("/login");
   };
 
   const cuisineCategories = [
@@ -108,7 +78,7 @@ export const Navbar = () => {
     { to: "/popular-recipes", label: "Popular", icon: <Award className="h-4 w-4 mr-2 text-amber-500" /> },
     { to: "/new-recipes", label: "New", icon: <Calendar className="h-4 w-4 mr-2 text-blue-500" /> },
     { to: "/food-videos", label: "Videos", icon: <Video className="h-4 w-4 mr-2 text-purple-500" /> },
-    session ? { to: "/add-recipe", label: "Add Recipe", icon: <PlusCircle className="h-4 w-4 mr-2 text-green-500" /> } : null,
+    user ? { to: "/add-recipe", label: "Add Recipe", icon: <PlusCircle className="h-4 w-4 mr-2 text-green-500" /> } : null,
   ].filter(Boolean);
 
   return (
@@ -223,7 +193,7 @@ export const Navbar = () => {
           
           {!loading && (
             <>
-              {session ? (
+              {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="rounded-full h-8 w-8 p-0 overflow-hidden border">
@@ -336,7 +306,7 @@ export const Navbar = () => {
                 <div className="mt-auto pt-4 border-t">
                   {!loading && (
                     <>
-                      {session ? (
+                      {user ? (
                         <div className="space-y-2">
                           <SheetClose asChild>
                             <Button asChild variant="outline" className="w-full justify-start">

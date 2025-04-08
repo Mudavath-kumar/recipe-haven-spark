@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { RecipeCard } from "@/components/RecipeCard";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { collections } from "@/integrations/mongodb/client";
 import { Recipe } from "@/integrations/mongodb/types";
+import { Document, WithId } from "mongodb";
 
 const MOCK_RECIPES = [
   {
@@ -46,16 +48,21 @@ const searchRecipes = async (query: string) => {
     
     // If we got results from MongoDB, return them
     if (recipesFromDB && recipesFromDB.length > 0) {
-      return recipesFromDB.map((recipe: Recipe) => ({
-        id: recipe._id?.toString() || recipe.id || '',
-        title: recipe.title,
-        description: recipe.description || 'No description available',
-        image: recipe.image_url,
-        cooking_time: recipe.cooking_time || 30,
-        category: recipe.category || 'Other',
-        servings: 4,
-        difficulty: recipe.difficulty || 'Medium'
-      }));
+      return recipesFromDB.map((doc: WithId<Document>) => {
+        // Cast the document to a partial Recipe type to ensure we have the right fields
+        const recipe = doc as unknown as Partial<Recipe> & WithId<Document>;
+        
+        return {
+          id: recipe._id?.toString() || recipe.id || '',
+          title: recipe.title || 'Untitled Recipe',
+          description: recipe.description || 'No description available',
+          image: recipe.image_url || '',
+          cooking_time: recipe.cooking_time || 30,
+          category: recipe.category || 'Other',
+          servings: 4,
+          difficulty: recipe.difficulty || 'Medium'
+        };
+      });
     }
     
     // Otherwise search in our mock data
