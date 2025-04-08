@@ -1,208 +1,102 @@
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { supabase } from "@/integrations/supabase/client";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { EyeIcon, EyeOffIcon, KeyIcon, MailIcon } from "lucide-react";
+import { collections } from "@/integrations/mongodb/client";
 
-const loginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  rememberMe: z.boolean().default(false),
-});
+interface LoginProps {
+  onLogin: (user: any) => void;
+}
 
-type LoginFormValues = z.infer<typeof loginSchema>;
-
-const Login = () => {
+const Login = ({ onLogin }: LoginProps) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  
-  // Check if user is already logged in
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        navigate("/");
-      }
-    };
-    
-    checkSession();
-  }, [navigate]);
-  
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      rememberMe: false,
-    },
-  });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
     try {
-      setIsLoading(true);
+      // For now, we'll implement a simple auth mechanism
+      // In a real application, you would have proper authentication with password hashing
+      const user = await collections.users.findOne({ email });
       
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (error) {
-        console.error("Authentication error:", error);
-        toast.error(error.message);
-        return;
-      }
-
-      if (authData.user) {
+      if (user) {
+        // In a real app, you would compare hashed passwords
+        // This is just a placeholder for demonstration
         toast.success("Login successful!");
+        onLogin(user);
         navigate("/");
+      } else {
+        toast.error("Invalid email or password");
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("An unexpected error occurred during login");
+      toast.error("An error occurred during login");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[80vh] bg-gradient-to-b from-blue-50 to-white px-4">
-      <Card className="w-full max-w-md shadow-lg border-0">
-        <CardHeader className="space-y-3 pb-6">
-          <div className="flex flex-col items-center space-y-2">
-            <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-2">
-              <KeyIcon className="h-8 w-8 text-blue-600" />
-            </div>
-            <CardTitle className="text-3xl font-bold text-center">Welcome back</CardTitle>
-            <CardDescription className="text-center text-base">
-              Enter your credentials to access your account
-            </CardDescription>
-          </div>
+    <div className="flex items-center justify-center min-h-[80vh] p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Login to your account</CardTitle>
+          <CardDescription>
+            Enter your email and password to login
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <div className="relative">
-                      <MailIcon className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                      <FormControl>
-                        <Input 
-                          placeholder="your.email@example.com" 
-                          className="pl-10" 
-                          {...field} 
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="your.email@example.com"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
-              
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <div className="relative">
-                      <KeyIcon className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                      <FormControl>
-                        <Input 
-                          type={showPassword ? "text" : "password"} 
-                          placeholder="••••••••" 
-                          className="pl-10"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOffIcon className="h-5 w-5 text-muted-foreground" />
-                        ) : (
-                          <EyeIcon className="h-5 w-5 text-muted-foreground" />
-                        )}
-                      </Button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
+            </div>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <FormField
-                  control={form.control}
-                  name="rememberMe"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="text-sm font-medium cursor-pointer">
-                        Remember me
-                      </FormLabel>
-                    </FormItem>
-                  )}
-                />
-                
-                <Link to="/forgot-password" className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                <Label htmlFor="password">Password</Label>
+                <Link
+                  to="/forgot-password"
+                  className="text-sm font-medium text-primary hover:underline"
+                >
                   Forgot password?
                 </Link>
               </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full mt-6 bg-blue-600 hover:bg-blue-700"
-                disabled={isLoading}
-              >
-                {isLoading ? "Signing in..." : "Sign In"}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4 border-t pt-6">
-          <div className="text-sm text-center text-muted-foreground">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-blue-600 hover:text-blue-800 hover:underline font-medium">
-              Create account
-            </Link>
-          </div>
-        </CardFooter>
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </Button>
+            <div className="text-center text-sm">
+              Don't have an account?{" "}
+              <Link to="/signup" className="text-primary hover:underline font-medium">
+                Sign up
+              </Link>
+            </div>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );

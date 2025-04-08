@@ -20,51 +20,61 @@ import RecipeDetail from "./pages/RecipeDetail";
 import FoodVideos from "./pages/FoodVideos";
 import SearchResults from "./pages/SearchResults";
 import AddRecipe from "./pages/AddRecipe";
-import { supabase } from "./integrations/supabase/client";
-import { Session } from "@supabase/supabase-js";
+import { connectToMongoDB } from "./integrations/mongodb/client";
 import { preloadCommonRecipeImages } from "./lib/imageUtils";
 
 const queryClient = new QueryClient();
 
 function App() {
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Preload common images to improve initial loading experience
     preloadCommonRecipeImages();
     
-    // Check for active session
-    const checkSession = async () => {
+    // Initialize MongoDB connection
+    const initMongoDB = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
-        setSession(data.session);
+        await connectToMongoDB();
+        // You would implement your auth check here
+        // For now, we'll just set loading to false
+        setLoading(false);
       } catch (error) {
-        console.error("Error checking session:", error);
-      } finally {
+        console.error("Error initializing MongoDB:", error);
         setLoading(false);
       }
     };
 
-    checkSession();
+    initMongoDB();
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
+    // For now, we'll use localStorage for basic auth
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Error parsing stored user:", error);
       }
-    );
-
-    // Clean up subscription
-    return () => {
-      subscription.unsubscribe();
-    };
+    }
   }, []);
+
+  // Function to handle login (to be passed to Login component)
+  const handleLogin = (userData: any) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
+  // Function to handle logout
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+  };
 
   // Protected route component
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-    if (!session) return <Navigate to="/login" replace />;
+    if (!user) return <Navigate to="/login" replace />;
     return <>{children}</>;
   };
 
@@ -73,12 +83,12 @@ function App() {
       <ThemeProvider defaultTheme="light">
         <Router>
           <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
-            <NavbarWithTheme />
+            <NavbarWithTheme user={user} onLogout={handleLogout} />
             <main className="flex-1 mt-16">
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
+                <Route path="/login" element={<Login onLogin={handleLogin} />} />
+                <Route path="/signup" element={<Signup onSignup={handleLogin} />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/indian-recipes" element={<IndianRecipes />} />
@@ -91,7 +101,7 @@ function App() {
                   path="/add-recipe"
                   element={
                     <ProtectedRoute>
-                      <AddRecipe />
+                      <AddRecipe user={user} />
                     </ProtectedRoute>
                   }
                 />
