@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,9 +22,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { MailIcon, ArrowLeftIcon } from "lucide-react";
-import { collections } from "@/integrations/mongodb/client";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -47,15 +48,16 @@ const ForgotPassword = () => {
     try {
       setIsLoading(true);
       
-      // Check if user exists - using mock implementation
-      const user = await collections.users.findOne();
-      
-      // In a real app, you would send a password reset email here
-      // For this demo, just simulate the process
-      
-      // Store the reset user ID in localStorage (only for demo)
-      localStorage.setItem('resetUserId', 'mock-user-id');
-      
+      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        console.error("Password reset error:", error);
+        toast.error(error.message);
+        return;
+      }
+
       setEmailSent(true);
       toast.success("Reset password instructions sent to your email");
     } catch (error) {

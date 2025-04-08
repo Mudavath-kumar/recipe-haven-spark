@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,10 +22,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { supabase } from "@/integrations/supabase/client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { EyeIcon, EyeOffIcon, KeyIcon, MailIcon, UserIcon } from "lucide-react";
-import { collections } from "@/integrations/mongodb/client";
 
 const signupSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -41,15 +42,23 @@ const signupSchema = z.object({
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-interface SignupProps {
-  onSignup: (userData: any) => void;
-}
-
-const Signup = ({ onSignup }: SignupProps) => {
+const Signup = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        navigate("/");
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -66,26 +75,26 @@ const Signup = ({ onSignup }: SignupProps) => {
     try {
       setIsLoading(true);
       
-      // Check if user with this email already exists
-      const existingUser = await collections.users.findOne();
-      
-      // For demo purposes, just create a mock user
-      const mockUser = {
-        id: "mock-user-id-" + Date.now(),
-        username: data.name,
+      const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
-        avatar_url: null,
-        bio: null,
-        website: null,
-        created_at: new Date()
-      };
-      
-      // Mock the insertion
-      await collections.users.insertOne(mockUser);
-      
-      toast.success("Account created successfully!");
-      onSignup(mockUser);
-      navigate("/");
+        password: data.password,
+        options: {
+          data: {
+            name: data.name,
+          },
+        },
+      });
+
+      if (error) {
+        console.error("Signup error:", error);
+        toast.error(error.message);
+        return;
+      }
+
+      if (authData.user) {
+        toast.success("Account created successfully! Please check your email to verify your account.");
+        navigate("/login");
+      }
     } catch (error) {
       console.error("Signup error:", error);
       toast.error("An unexpected error occurred during signup");

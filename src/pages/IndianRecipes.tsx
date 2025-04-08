@@ -1,12 +1,16 @@
+
 import { useState } from "react";
 import { RecipeCard } from "@/components/RecipeCard";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Database } from "@/integrations/supabase/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Check, Clock, Users } from "lucide-react";
-import { collections } from "@/integrations/mongodb/client";
+
+type DbRecipe = Database['public']['Tables']['recipes']['Row'];
 
 type Ingredient = {
   name: string;
@@ -23,7 +27,7 @@ export type DetailedRecipe = {
   category: string;
   instructions: string;
   ingredients: Ingredient[];
-  servings?: number;
+  servings?: number; // Added servings property
 };
 
 // Mock data for the Indian recipes
@@ -258,30 +262,30 @@ export const INDIAN_RECIPES: DetailedRecipe[] = [
   }
 ];
 
-const fetchIndianRecipes = async (): Promise<DetailedRecipe[]> => {
+const fetchIndianRecipes = async (): Promise<DbRecipe[]> => {
   try {
-    // Attempt to fetch from MongoDB
-    const recipesResult = await collections.recipes.find();
-    const recipesFromDB = await recipesResult.toArray();
+    const { data, error } = await supabase
+      .from('recipes')
+      .select('*')
+      .eq('category', 'Indian');
     
-    if (recipesFromDB && recipesFromDB.length > 0) {
-      // Map MongoDB data to DetailedRecipe format - This would normally have proper typing
-      // For now, using mock data is more reliable for demo
-      console.log("Found recipes in DB, but using mock data for consistent demo");
+    if (error) {
+      console.error('Error fetching Indian recipes from Supabase:', error);
+      throw error;
     }
     
-    // Return mock data as fallback
-    return INDIAN_RECIPES;
+    // If no data returned from Supabase, use mock data
+    return data && data.length > 0 ? data : INDIAN_RECIPES as unknown as DbRecipe[];
   } catch (error) {
     console.error('Error in fetchIndianRecipes:', error);
     // Return mock data as fallback
-    return INDIAN_RECIPES;
+    return INDIAN_RECIPES as unknown as DbRecipe[];
   }
 };
 
 const IndianRecipes = () => {
   const [selectedRecipe, setSelectedRecipe] = useState<DetailedRecipe | null>(null);
-  const { data: indianRecipes, isLoading } = useQuery<DetailedRecipe[], Error>({
+  const { data: indianRecipes, isLoading } = useQuery<DbRecipe[], Error>({
     queryKey: ['recipes', 'indian'],
     queryFn: fetchIndianRecipes
   });
@@ -326,7 +330,7 @@ const IndianRecipes = () => {
         </div>
         
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {indianRecipes ? indianRecipes.map((recipe) => (
+          {INDIAN_RECIPES.map((recipe) => (
             <div key={recipe.id} className="group relative">
               <RecipeCard 
                 id={recipe.id}
@@ -344,7 +348,7 @@ const IndianRecipes = () => {
                 View Details
               </Button>
             </div>
-          )) : null}
+          ))}
         </div>
       </section>
 

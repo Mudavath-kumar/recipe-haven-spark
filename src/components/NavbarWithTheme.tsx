@@ -9,23 +9,37 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ChefHat, Search, User, LogOut, LogIn, Calculator } from "lucide-react";
+import { ChefHat, Search, User, LogOut, LogIn } from "lucide-react";
 
-interface NavbarWithThemeProps {
-  user: any;
-  onLogout: () => void;
-}
-
-export const NavbarWithTheme = ({ user, onLogout }: NavbarWithThemeProps) => {
+export const NavbarWithTheme = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Logged out",
+        description: "You have been logged out successfully",
+      });
+      navigate("/");
     }
   };
 
@@ -52,10 +66,6 @@ export const NavbarWithTheme = ({ user, onLogout }: NavbarWithThemeProps) => {
             </Link>
             <Link to="/food-videos" className="text-sm font-medium hover:text-recipe-700 dark:hover:text-recipe-400 transition-colors">
               Videos
-            </Link>
-            <Link to="/calculator" className="text-sm font-medium hover:text-recipe-700 dark:hover:text-recipe-400 transition-colors flex items-center gap-1">
-              <Calculator className="h-4 w-4" />
-              Calculator
             </Link>
           </div>
         </div>
@@ -89,24 +99,15 @@ export const NavbarWithTheme = ({ user, onLogout }: NavbarWithThemeProps) => {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/calculator" className="flex items-center gap-2 cursor-pointer">
-                  <Calculator className="h-4 w-4" />
-                  <span>Calculator</span>
+                <Link to="/login" className="flex items-center gap-2 cursor-pointer">
+                  <LogIn className="h-4 w-4" />
+                  <span>Login</span>
                 </Link>
               </DropdownMenuItem>
-              {!user ? (
-                <DropdownMenuItem asChild>
-                  <Link to="/login" className="flex items-center gap-2 cursor-pointer">
-                    <LogIn className="h-4 w-4" />
-                    <span>Login</span>
-                  </Link>
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem onClick={onLogout} className="flex items-center gap-2 cursor-pointer">
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
-                </DropdownMenuItem>
-              )}
+              <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 cursor-pointer">
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

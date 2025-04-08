@@ -1,10 +1,11 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { toast } from "sonner";
-import { collections } from "@/integrations/mongodb/client";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,15 +48,12 @@ type Ingredient = {
   unit: string;
 };
 
-interface AddRecipeProps {
-  user: any;
-}
-
-const AddRecipe = ({ user }: AddRecipeProps) => {
+const AddRecipe = () => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([
     { id: uuidv4(), name: "", amount: "", unit: "" },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   const form = useForm<RecipeFormValues>({
@@ -106,56 +104,76 @@ const AddRecipe = ({ user }: AddRecipeProps) => {
     );
     
     if (validIngredients.length === 0) {
-      toast.error("Please add at least one ingredient");
+      toast({
+        title: "Validation Error",
+        description: "Please add at least one ingredient",
+        variant: "destructive",
+      });
       setIsSubmitting(false);
       return;
     }
 
     try {
-      if (!user) {
-        toast.error("Please login to add a recipe");
+      // Check for user session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Authentication Required",
+          description: "Please login to add a recipe",
+          variant: "destructive",
+        });
         navigate("/login");
         return;
       }
 
-      // Create a unique ID for the recipe
-      const recipeId = "recipe-" + Date.now();
-      
-      // Insert recipe using the mock implementation
-      const recipe = {
-        id: recipeId,
-        title: values.title,
-        description: values.description,
-        category: values.category,
-        cooking_time: values.cookingTime,
-        difficulty: values.difficulty,
-        instructions: values.instructions,
-        image_url: values.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
-        user_id: user.id,
-        created_at: new Date()
-      };
-      
-      await collections.recipes.insertOne(recipe);
+      // Insert recipe to Supabase
+      const { data: recipe, error } = await supabase
+        .from("recipes")
+        .insert({
+          title: values.title,
+          description: values.description,
+          category: values.category,
+          cooking_time: values.cookingTime,
+          difficulty: values.difficulty,
+          instructions: values.instructions,
+          image_url: values.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
+          user_id: session.user.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
 
       // Insert ingredients
-      const ingredientsToInsert = validIngredients.map((ing) => ({
-        id: "ingredient-" + Date.now() + "-" + Math.random().toString(36).substring(2, 9),
-        recipe_id: recipe.id,
-        name: ing.name,
-        amount: ing.amount,
-        unit: ing.unit || null,
-      }));
+      if (recipe) {
+        const ingredientsToInsert = validIngredients.map((ing) => ({
+          recipe_id: recipe.id,
+          name: ing.name,
+          amount: ing.amount,
+          unit: ing.unit || null,
+        }));
 
-      if (ingredientsToInsert.length > 0) {
-        await collections.ingredients.insertMany(ingredientsToInsert);
+        const { error: ingredientsError } = await supabase
+          .from("ingredients")
+          .insert(ingredientsToInsert);
+
+        if (ingredientsError) throw ingredientsError;
       }
 
-      toast.success("Recipe added successfully!");
+      toast({
+        title: "Recipe Added",
+        description: "Your recipe has been successfully added",
+      });
       
       navigate(`/recipe/${recipe.id}`);
     } catch (error: any) {
       console.error("Error adding recipe:", error);
-      toast.error(error.message || "Failed to add recipe. Please try again.");
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add recipe. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
