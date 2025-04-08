@@ -22,9 +22,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { KeyIcon, EyeIcon, EyeOffIcon, LockIcon } from "lucide-react";
+import { collections } from "@/integrations/mongodb/client";
 
 const resetPasswordSchema = z.object({
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
@@ -41,20 +41,20 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   
   useEffect(() => {
-    // Check if we have a valid session from the password reset flow
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      
-      // If we don't have a session, redirect to login
-      if (!data.session?.user?.email) {
-        toast.error("Invalid or expired reset link. Please try again.");
-        navigate("/login");
-      }
-    };
+    // In a real app, you would parse a token from the URL
+    // For this example, we'll just check if there's a userId in localStorage
+    // that represents a pending password reset
+    const resetUserId = localStorage.getItem('resetUserId');
     
-    checkSession();
+    if (!resetUserId) {
+      toast.error("Invalid or expired reset link. Please try again.");
+      navigate("/login");
+    } else {
+      setUserId(resetUserId);
+    }
   }, [navigate]);
   
   const form = useForm<ResetPasswordFormValues>({
@@ -69,20 +69,22 @@ const ResetPassword = () => {
     try {
       setIsLoading(true);
       
-      const { error } = await supabase.auth.updateUser({
-        password: data.password,
-      });
-
-      if (error) {
-        console.error("Password update error:", error);
-        toast.error(error.message);
+      if (!userId) {
+        toast.error("Invalid reset token");
+        navigate("/login");
         return;
       }
+      
+      // Update the user's password in MongoDB
+      await collections.users.updateOne(
+        { id: userId },
+        { $set: { password: data.password } } // In a real app, you would hash this password
+      );
 
       toast.success("Password successfully updated");
       
-      // Sign out the user to make them sign in with the new password
-      await supabase.auth.signOut();
+      // Clear the reset userId from localStorage
+      localStorage.removeItem('resetUserId');
       
       // Redirect to login
       navigate("/login");

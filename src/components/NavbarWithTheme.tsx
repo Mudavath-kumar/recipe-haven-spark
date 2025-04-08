@@ -9,37 +9,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ChefHat, Search, User, LogOut, LogIn } from "lucide-react";
 
-export const NavbarWithTheme = () => {
+interface NavbarWithThemeProps {
+  user: any;
+  onLogout: () => void;
+}
+
+export const NavbarWithTheme = ({ user, onLogout }: NavbarWithThemeProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  const { toast } = useToast();
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Logged out",
-        description: "You have been logged out successfully",
-      });
-      navigate("/");
     }
   };
 
@@ -98,16 +84,19 @@ export const NavbarWithTheme = () => {
                   <span>Add Recipe</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/login" className="flex items-center gap-2 cursor-pointer">
-                  <LogIn className="h-4 w-4" />
-                  <span>Login</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 cursor-pointer">
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </DropdownMenuItem>
+              {!user ? (
+                <DropdownMenuItem asChild>
+                  <Link to="/login" className="flex items-center gap-2 cursor-pointer">
+                    <LogIn className="h-4 w-4" />
+                    <span>Login</span>
+                  </Link>
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={onLogout} className="flex items-center gap-2 cursor-pointer">
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

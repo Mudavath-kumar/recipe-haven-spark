@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,10 +22,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { supabase } from "@/integrations/supabase/client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { EyeIcon, EyeOffIcon, KeyIcon, MailIcon, UserIcon } from "lucide-react";
+import { collections } from "@/integrations/mongodb/client";
+import { ObjectId } from "mongodb";
 
 const signupSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -42,23 +43,15 @@ const signupSchema = z.object({
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-const Signup = () => {
+interface SignupProps {
+  onSignup: (userData: any) => void;
+}
+
+const Signup = ({ onSignup }: SignupProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // Check if user is already logged in
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        navigate("/");
-      }
-    };
-    
-    checkSession();
-  }, [navigate]);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -75,26 +68,33 @@ const Signup = () => {
     try {
       setIsLoading(true);
       
-      const { data: authData, error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            name: data.name,
-          },
-        },
-      });
-
-      if (error) {
-        console.error("Signup error:", error);
-        toast.error(error.message);
+      // Check if user with this email already exists
+      const existingUser = await collections.users.findOne({ email: data.email });
+      
+      if (existingUser) {
+        toast.error("A user with this email already exists");
         return;
       }
-
-      if (authData.user) {
-        toast.success("Account created successfully! Please check your email to verify your account.");
-        navigate("/login");
-      }
+      
+      // Create new user
+      const userId = new ObjectId();
+      const newUser = {
+        _id: userId,
+        id: userId.toString(),
+        username: data.name,
+        email: data.email,
+        password: data.password, // In a real app, you would hash this password
+        avatar_url: null,
+        bio: null,
+        website: null,
+        created_at: new Date()
+      };
+      
+      await collections.users.insertOne(newUser);
+      
+      toast.success("Account created successfully!");
+      onSignup(newUser);
+      navigate("/");
     } catch (error) {
       console.error("Signup error:", error);
       toast.error("An unexpected error occurred during signup");

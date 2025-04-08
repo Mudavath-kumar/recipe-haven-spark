@@ -23,13 +23,10 @@ const Login = ({ onLogin }: LoginProps) => {
     setLoading(true);
 
     try {
-      // For now, we'll implement a simple auth mechanism
-      // In a real application, you would have proper authentication with password hashing
+      // Find user by email
       const user = await collections.users.findOne({ email });
       
-      if (user) {
-        // In a real app, you would compare hashed passwords
-        // This is just a placeholder for demonstration
+      if (user && user.password === password) { // In a real app, you would compare hashed passwords
         toast.success("Login successful!");
         onLogin(user);
         navigate("/");

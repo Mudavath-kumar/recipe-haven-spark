@@ -21,7 +21,6 @@ import FoodVideos from "./pages/FoodVideos";
 import SearchResults from "./pages/SearchResults";
 import AddRecipe from "./pages/AddRecipe";
 import { connectToMongoDB } from "./integrations/mongodb/client";
-import { preloadCommonRecipeImages } from "./lib/imageUtils";
 
 const queryClient = new QueryClient();
 
@@ -30,9 +29,6 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Preload common images to improve initial loading experience
-    preloadCommonRecipeImages();
-    
     // Initialize MongoDB connection
     const initMongoDB = async () => {
       try {

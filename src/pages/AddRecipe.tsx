@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { collections } from "@/integrations/mongodb/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +26,7 @@ import {
 } from "@/components/ui/form";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
+import { ObjectId } from "mongodb";
 
 const recipeSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters long" }),
@@ -48,12 +48,15 @@ type Ingredient = {
   unit: string;
 };
 
-const AddRecipe = () => {
+interface AddRecipeProps {
+  user: any;
+}
+
+const AddRecipe = ({ user }: AddRecipeProps) => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([
     { id: uuidv4(), name: "", amount: "", unit: "" },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   const form = useForm<RecipeFormValues>({
@@ -104,76 +107,56 @@ const AddRecipe = () => {
     );
     
     if (validIngredients.length === 0) {
-      toast({
-        title: "Validation Error",
-        description: "Please add at least one ingredient",
-        variant: "destructive",
-      });
+      toast.error("Please add at least one ingredient");
       setIsSubmitting(false);
       return;
     }
 
     try {
-      // Check for user session
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast({
-          title: "Authentication Required",
-          description: "Please login to add a recipe",
-          variant: "destructive",
-        });
+      if (!user) {
+        toast.error("Please login to add a recipe");
         navigate("/login");
         return;
       }
 
-      // Insert recipe to Supabase
-      const { data: recipe, error } = await supabase
-        .from("recipes")
-        .insert({
-          title: values.title,
-          description: values.description,
-          category: values.category,
-          cooking_time: values.cookingTime,
-          difficulty: values.difficulty,
-          instructions: values.instructions,
-          image_url: values.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
-          user_id: session.user.id,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const recipeId = new ObjectId();
+      // Insert recipe to MongoDB
+      const recipe = {
+        _id: recipeId,
+        id: recipeId.toString(),
+        title: values.title,
+        description: values.description,
+        category: values.category,
+        cooking_time: values.cookingTime,
+        difficulty: values.difficulty,
+        instructions: values.instructions,
+        image_url: values.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
+        user_id: user.id,
+        created_at: new Date()
+      };
+      
+      await collections.recipes.insertOne(recipe);
 
       // Insert ingredients
-      if (recipe) {
-        const ingredientsToInsert = validIngredients.map((ing) => ({
-          recipe_id: recipe.id,
-          name: ing.name,
-          amount: ing.amount,
-          unit: ing.unit || null,
-        }));
+      const ingredientsToInsert = validIngredients.map((ing) => ({
+        _id: new ObjectId(),
+        id: new ObjectId().toString(),
+        recipe_id: recipe.id,
+        name: ing.name,
+        amount: ing.amount,
+        unit: ing.unit || null,
+      }));
 
-        const { error: ingredientsError } = await supabase
-          .from("ingredients")
-          .insert(ingredientsToInsert);
-
-        if (ingredientsError) throw ingredientsError;
+      if (ingredientsToInsert.length > 0) {
+        await collections.ingredients.insertMany(ingredientsToInsert);
       }
 
-      toast({
-        title: "Recipe Added",
-        description: "Your recipe has been successfully added",
-      });
+      toast.success("Recipe added successfully!");
       
       navigate(`/recipe/${recipe.id}`);
     } catch (error: any) {
       console.error("Error adding recipe:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to add recipe. Please try again.",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Failed to add recipe. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

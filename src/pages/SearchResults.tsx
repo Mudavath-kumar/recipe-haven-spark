@@ -2,26 +2,61 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { RecipeCard } from "@/components/RecipeCard";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { INDIAN_RECIPES } from "@/pages/IndianRecipes";
-import { MOCK_RECIPES } from "@/lib/mock-data";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { collections } from "@/integrations/mongodb/client";
+import { Recipe } from "@/integrations/mongodb/types";
+
+const MOCK_RECIPES = [
+  {
+    id: "mock-1",
+    title: "Pasta Carbonara",
+    description: "A classic Italian pasta dish with eggs, cheese, and bacon",
+    image: "https://images.unsplash.com/photo-1588013273468-315fd88ea34c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
+    cooking_time: 30,
+    category: "Italian",
+    servings: 4,
+    difficulty: "Medium"
+  },
+  {
+    id: "mock-2",
+    title: "Greek Salad",
+    description: "Fresh Mediterranean salad with tomatoes, cucumbers, and feta cheese",
+    image: "https://images.unsplash.com/photo-1529059997568-3d847b1154f0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
+    cooking_time: 15,
+    category: "Greek",
+    servings: 2,
+    difficulty: "Easy"
+  }
+];
 
 const searchRecipes = async (query: string) => {
   try {
-    // First try to search in Supabase
-    const { data, error } = await supabase
-      .from('recipes')
-      .select('*')
-      .or(`title.ilike.%${query}%,description.ilike.%${query}%,category.ilike.%${query}%`);
+    // Try to search in MongoDB
+    const recipesFromDB = await collections.recipes.find({
+      $or: [
+        { title: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } },
+        { category: { $regex: query, $options: 'i' } }
+      ]
+    }).toArray();
     
-    if (error) throw error;
-    
-    // If we got results from Supabase, return them
-    if (data && data.length > 0) return data;
+    // If we got results from MongoDB, return them
+    if (recipesFromDB && recipesFromDB.length > 0) {
+      return recipesFromDB.map((recipe: Recipe) => ({
+        id: recipe._id?.toString() || recipe.id || '',
+        title: recipe.title,
+        description: recipe.description || 'No description available',
+        image: recipe.image_url,
+        cooking_time: recipe.cooking_time || 30,
+        category: recipe.category || 'Other',
+        servings: 4,
+        difficulty: recipe.difficulty || 'Medium'
+      }));
+    }
     
     // Otherwise search in our mock data
     const mockResults = [
@@ -41,7 +76,7 @@ const searchRecipes = async (query: string) => {
   } catch (error) {
     console.error("Error searching recipes:", error);
     
-    // Fallback to mock data if Supabase search fails
+    // Fallback to mock data if MongoDB search fails
     const mockResults = [
       ...MOCK_RECIPES.filter(recipe => 
         recipe.title.toLowerCase().includes(query.toLowerCase()) ||
