@@ -75,10 +75,10 @@ const ResetPassword = () => {
         return;
       }
       
-      // Update the user's password in MongoDB
+      // Update the user's password using the mock implementation
       await collections.users.updateOne(
         { id: userId },
-        { $set: { password: data.password } } // In a real app, you would hash this password
+        { $set: { password: data.password } }
       );
 
       toast.success("Password successfully updated");

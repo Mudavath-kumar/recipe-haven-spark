@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/form";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
-import { ObjectId } from "mongodb";
 
 const recipeSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters long" }),
@@ -119,11 +118,12 @@ const AddRecipe = ({ user }: AddRecipeProps) => {
         return;
       }
 
-      const recipeId = new ObjectId();
-      // Insert recipe to MongoDB
+      // Create a unique ID for the recipe
+      const recipeId = "recipe-" + Date.now();
+      
+      // Insert recipe using the mock implementation
       const recipe = {
-        _id: recipeId,
-        id: recipeId.toString(),
+        id: recipeId,
         title: values.title,
         description: values.description,
         category: values.category,
@@ -139,8 +139,7 @@ const AddRecipe = ({ user }: AddRecipeProps) => {
 
       // Insert ingredients
       const ingredientsToInsert = validIngredients.map((ing) => ({
-        _id: new ObjectId(),
-        id: new ObjectId().toString(),
+        id: "ingredient-" + Date.now() + "-" + Math.random().toString(36).substring(2, 9),
         recipe_id: recipe.id,
         name: ing.name,
         amount: ing.amount,

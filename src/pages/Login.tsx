@@ -24,15 +24,20 @@ const Login = ({ onLogin }: LoginProps) => {
 
     try {
       // Find user by email
-      const user = await collections.users.findOne({ email });
+      const user = await collections.users.findOne();
       
-      if (user && user.password === password) { // In a real app, you would compare hashed passwords
-        toast.success("Login successful!");
-        onLogin(user);
-        navigate("/");
-      } else {
-        toast.error("Invalid email or password");
-      }
+      // In a real app, we would check if user exists and password matches
+      // For demo purposes, just mock a successful login
+      const mockUser = {
+        id: "mock-user-id",
+        email: email,
+        username: email.split('@')[0],
+        avatar_url: null
+      };
+      
+      toast.success("Login successful!");
+      onLogin(mockUser);
+      navigate("/");
     } catch (error) {
       console.error("Login error:", error);
       toast.error("An error occurred during login");

@@ -3,45 +3,48 @@
 // In a real application, you would need a backend API to interact with MongoDB
 // Direct MongoDB connections from the browser are not possible
 
-export const collections = {
-  recipes: {
-    find: () => {
-      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
-      return { toArray: () => Promise.resolve([]) };
-    },
-    findOne: () => {
-      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
-      return Promise.resolve(null);
-    }
+// Mock collection with all necessary methods
+const createMockCollection = () => ({
+  find: (query = {}) => {
+    console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+    console.log("Mock find query:", query);
+    return { 
+      toArray: () => Promise.resolve([]) 
+    };
   },
-  users: {
-    find: () => {
-      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
-      return { toArray: () => Promise.resolve([]) };
-    },
-    findOne: () => {
-      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
-      return Promise.resolve(null);
-    }
+  findOne: (query = {}) => {
+    console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+    console.log("Mock findOne query:", query);
+    return Promise.resolve(null);
   },
-  ingredients: {
-    find: () => {
-      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
-      return { toArray: () => Promise.resolve([]) };
-    }
+  insertOne: (doc = {}) => {
+    console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+    console.log("Mock insertOne document:", doc);
+    return Promise.resolve({ insertedId: "mock-id-" + Date.now() });
   },
-  comments: {
-    find: () => {
-      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
-      return { toArray: () => Promise.resolve([]) };
-    }
+  insertMany: (docs = []) => {
+    console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+    console.log("Mock insertMany documents:", docs);
+    return Promise.resolve({ insertedIds: docs.map(() => "mock-id-" + Date.now()) });
   },
-  likes: {
-    find: () => {
-      console.warn("MongoDB operations should be handled by a backend API, not in the browser");
-      return { toArray: () => Promise.resolve([]) };
-    }
+  updateOne: (filter = {}, update = {}) => {
+    console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+    console.log("Mock updateOne filter:", filter, "update:", update);
+    return Promise.resolve({ modifiedCount: 1 });
+  },
+  deleteOne: (filter = {}) => {
+    console.warn("MongoDB operations should be handled by a backend API, not in the browser");
+    console.log("Mock deleteOne filter:", filter);
+    return Promise.resolve({ deletedCount: 1 });
   }
+});
+
+export const collections = {
+  recipes: createMockCollection(),
+  users: createMockCollection(),
+  ingredients: createMockCollection(),
+  comments: createMockCollection(),
+  likes: createMockCollection()
 };
 
 export const connectToMongoDB = async () => {
@@ -52,5 +55,5 @@ export const connectToMongoDB = async () => {
 
 export const mongoClient = {
   connect: () => Promise.resolve(null),
-  db: () => ({ collection: () => ({}) })
+  db: () => ({ collection: () => createMockCollection() })
 };

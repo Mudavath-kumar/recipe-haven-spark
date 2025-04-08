@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,16 +47,14 @@ const ForgotPassword = () => {
     try {
       setIsLoading(true);
       
-      // Check if user exists
-      const user = await collections.users.findOne({ email: data.email });
-      
-      if (!user) {
-        toast.error("No account found with that email address");
-        return;
-      }
+      // Check if user exists - using mock implementation
+      const user = await collections.users.findOne();
       
       // In a real app, you would send a password reset email here
-      // For now, we'll just simulate the process
+      // For this demo, just simulate the process
+      
+      // Store the reset user ID in localStorage (only for demo)
+      localStorage.setItem('resetUserId', 'mock-user-id');
       
       setEmailSent(true);
       toast.success("Reset password instructions sent to your email");

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +25,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { EyeIcon, EyeOffIcon, KeyIcon, MailIcon, UserIcon } from "lucide-react";
 import { collections } from "@/integrations/mongodb/client";
-import { ObjectId } from "mongodb";
 
 const signupSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -69,31 +67,24 @@ const Signup = ({ onSignup }: SignupProps) => {
       setIsLoading(true);
       
       // Check if user with this email already exists
-      const existingUser = await collections.users.findOne({ email: data.email });
+      const existingUser = await collections.users.findOne();
       
-      if (existingUser) {
-        toast.error("A user with this email already exists");
-        return;
-      }
-      
-      // Create new user
-      const userId = new ObjectId();
-      const newUser = {
-        _id: userId,
-        id: userId.toString(),
+      // For demo purposes, just create a mock user
+      const mockUser = {
+        id: "mock-user-id-" + Date.now(),
         username: data.name,
         email: data.email,
-        password: data.password, // In a real app, you would hash this password
         avatar_url: null,
         bio: null,
         website: null,
         created_at: new Date()
       };
       
-      await collections.users.insertOne(newUser);
+      // Mock the insertion
+      await collections.users.insertOne(mockUser);
       
       toast.success("Account created successfully!");
-      onSignup(newUser);
+      onSignup(mockUser);
       navigate("/");
     } catch (error) {
       console.error("Signup error:", error);
