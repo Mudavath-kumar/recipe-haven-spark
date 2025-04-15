@@ -20,9 +20,12 @@ import RecipeDetail from "./pages/RecipeDetail";
 import FoodVideos from "./pages/FoodVideos";
 import SearchResults from "./pages/SearchResults";
 import AddRecipe from "./pages/AddRecipe";
+import Calculator from "./pages/Calculator";
 import { supabase } from "./integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { preloadCommonRecipeImages } from "./lib/imageUtils";
+import MyRecipes from "./pages/MyRecipes";
+import EditRecipe from "./pages/EditRecipe";
 
 const queryClient = new QueryClient();
 
@@ -73,7 +76,7 @@ function App() {
       <ThemeProvider defaultTheme="light">
         <Router>
           <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
-            <NavbarWithTheme />
+            <NavbarWithTheme session={session} />
             <main className="flex-1 mt-16">
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -87,11 +90,28 @@ function App() {
                 <Route path="/recipe/:id" element={<RecipeDetail />} />
                 <Route path="/food-videos" element={<FoodVideos />} />
                 <Route path="/search" element={<SearchResults />} />
+                <Route path="/calculator" element={<Calculator />} />
                 <Route
                   path="/add-recipe"
                   element={
                     <ProtectedRoute>
                       <AddRecipe />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/my-recipes"
+                  element={
+                    <ProtectedRoute>
+                      <MyRecipes />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/edit-recipe/:id"
+                  element={
+                    <ProtectedRoute>
+                      <EditRecipe />
                     </ProtectedRoute>
                   }
                 />

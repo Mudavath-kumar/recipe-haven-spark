@@ -1,472 +1,306 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { MOCK_RECIPES } from "@/lib/mock-data";
-import { Button } from "@/components/ui/button";
-import { 
-  Clock, 
-  Printer, 
-  Share2, 
-  Users, 
-  Plus, 
-  Heart, 
-  Bookmark, 
-  ChefHat, 
-  Timer, 
-  AlertCircle, 
-  Star, 
-  Utensils, 
-  ArrowLeft,
-  Check
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { INDIAN_RECIPES } from "./IndianRecipes";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getRecipeImage } from "@/lib/imageUtils";
-import { useEffect } from "react";
 
-type Ingredient = {
+import { useState, useEffect } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Clock, User, ChefHat, Edit, Trash2, ArrowLeft } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+interface Recipe {
+  id: string;
+  title: string;
+  description: string | null;
+  instructions: string;
+  cooking_time: number | null;
+  difficulty: string | null;
+  category: string | null;
+  image_url: string | null;
+  created_at: string;
+  user_id: string;
+}
+
+interface Ingredient {
+  id: string;
   name: string;
   amount: string;
   unit: string | null;
-};
+}
 
-type DetailedRecipe = {
+interface UserProfile {
   id: string;
-  title: string;
-  description: string;
-  image_url: string;
-  cooking_time: number;
-  category: string;
-  instructions: string;
-  ingredients: Ingredient[];
-  servings?: number;
-};
-
-type MockRecipe = {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  time: string;
-  servings: number;
-  category: string;
-  ingredients?: string[];
-  instructions?: string[];
-};
-
-const DEFAULT_INGREDIENTS: Record<string, string[]> = {
-  'Italian Pasta': [
-    '400g spaghetti or favorite pasta',
-    '2 tbsp olive oil',
-    '4 cloves garlic, minced',
-    '1 can (400g) crushed tomatoes',
-    '1 tsp dried oregano',
-    '1 tsp dried basil',
-    'Salt and pepper to taste',
-    'Grated Parmesan cheese for serving',
-    'Fresh basil leaves for garnish'
-  ],
-  'Chocolate Cake': [
-    '2 cups all-purpose flour',
-    '2 cups sugar',
-    '3/4 cup unsweetened cocoa powder',
-    '2 tsp baking soda',
-    '1 tsp baking powder',
-    '1 tsp salt',
-    '2 eggs',
-    '1 cup buttermilk',
-    '1/2 cup vegetable oil',
-    '2 tsp vanilla extract',
-    '1 cup hot coffee'
-  ],
-  'Chicken Curry': [
-    '500g chicken thighs, cut into pieces',
-    '2 onions, finely chopped',
-    '3 cloves garlic, minced',
-    '1 tbsp ginger, grated',
-    '2 tbsp curry powder',
-    '1 can (400ml) coconut milk',
-    '1 tbsp vegetable oil',
-    'Salt to taste',
-    'Fresh cilantro for garnish',
-    '1 tomato, chopped'
-  ],
-  'Vegetable Stir Fry': [
-    '2 cups mixed vegetables (bell peppers, broccoli, carrots, snap peas)',
-    '2 tbsp sesame oil',
-    '2 cloves garlic, minced',
-    '1 tbsp ginger, grated',
-    '3 tbsp soy sauce',
-    '1 tbsp honey or maple syrup',
-    '1 tsp cornstarch mixed with 2 tbsp water',
-    'Sesame seeds for garnish',
-    'Green onions, sliced'
-  ],
-  'Caesar Salad': [
-    '1 large romaine lettuce, chopped',
-    '1/2 cup croutons',
-    '1/4 cup grated Parmesan cheese',
-    '2 tbsp olive oil',
-    '1 tbsp lemon juice',
-    '1 tsp Dijon mustard',
-    '1 clove garlic, minced',
-    '1 anchovy fillet, minced (optional)',
-    'Salt and pepper to taste'
-  ]
-};
-
-const getDefaultIngredients = (recipe: MockRecipe): string[] => {
-  if (recipe.ingredients && recipe.ingredients.length > 0) {
-    return recipe.ingredients;
-  }
-  
-  if (DEFAULT_INGREDIENTS[recipe.title]) {
-    return DEFAULT_INGREDIENTS[recipe.title];
-  }
-  
-  if (recipe.category === 'Italian') {
-    return DEFAULT_INGREDIENTS['Italian Pasta'];
-  } else if (recipe.category === 'Desserts') {
-    return DEFAULT_INGREDIENTS['Chocolate Cake'];
-  } else if (recipe.category === 'Salads') {
-    return DEFAULT_INGREDIENTS['Caesar Salad'];
-  } else if (recipe.category === 'Asian') {
-    return DEFAULT_INGREDIENTS['Vegetable Stir Fry'];
-  } else {
-    return DEFAULT_INGREDIENTS['Chicken Curry'];
-  }
-};
+  username: string | null;
+}
 
 const RecipeDetail = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const indianRecipe = (INDIAN_RECIPES as DetailedRecipe[]).find(r => r.id === id);
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [author, setAuthor] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   
-  const mockRecipe = !indianRecipe ? MOCK_RECIPES.find(r => r.id === Number(id)) as MockRecipe : null;
-  
-  const recipe = indianRecipe || mockRecipe;
-
   useEffect(() => {
-    if (recipe) {
-      MOCK_RECIPES.slice(0, 3).forEach(relatedRecipe => {
-        const img = new Image();
-        img.src = getRecipeImage(relatedRecipe.title, relatedRecipe.category, relatedRecipe.image);
-      });
-    }
-  }, [recipe]);
+    const fetchRecipeDetails = async () => {
+      if (!id) return;
+      
+      try {
+        setIsLoading(true);
+        
+        // Check current user
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id || null;
+        setCurrentUserId(userId);
+        
+        // Fetch recipe details
+        const { data: recipeData, error: recipeError } = await supabase
+          .from("recipes")
+          .select("*")
+          .eq("id", id)
+          .single();
+        
+        if (recipeError) {
+          throw new Error("Recipe not found");
+        }
+        
+        setRecipe(recipeData);
+        setIsOwner(userId === recipeData.user_id);
+        
+        // Fetch ingredients
+        const { data: ingredientsData, error: ingredientsError } = await supabase
+          .from("ingredients")
+          .select("*")
+          .eq("recipe_id", id);
+        
+        if (ingredientsError) {
+          console.error("Error fetching ingredients:", ingredientsError);
+        } else {
+          setIngredients(ingredientsData || []);
+        }
+        
+        // Fetch author information
+        if (recipeData.user_id) {
+          const { data: profileData, error: profileError } = await supabase
+            .from("profiles")
+            .select("id, username")
+            .eq("id", recipeData.user_id)
+            .single();
+          
+          if (!profileError && profileData) {
+            setAuthor(profileData);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching recipe details:", error);
+        toast.error("Failed to load recipe details");
+        navigate("/");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchRecipeDetails();
+  }, [id, navigate]);
 
-  const handleShare = async () => {
+  const handleDeleteRecipe = async () => {
+    if (!id || !isOwner) return;
+    
     try {
-      await navigator.share({
-        title: recipe?.title,
-        text: recipe?.description,
-        url: window.location.href,
-      });
-    } catch (err) {
-      toast.success("Copied to clipboard!", {
-        description: "Recipe link has been copied to your clipboard.",
-      });
-      navigator.clipboard.writeText(window.location.href);
+      const { error } = await supabase
+        .from("recipes")
+        .delete()
+        .eq("id", id);
+      
+      if (error) throw error;
+      
+      toast.success("Recipe deleted successfully");
+      navigate("/my-recipes");
+    } catch (error: any) {
+      console.error("Error deleting recipe:", error);
+      toast.error("Failed to delete recipe");
     }
   };
-
-  const handleSaveRecipe = () => {
-    toast.success("Recipe saved!", {
-      description: "This recipe has been saved to your collection.",
-    });
-  };
-
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleLike = () => {
-    toast.success("Recipe liked!", {
-      description: "You've added this recipe to your favorites.",
-    });
-  };
-
+  
+  if (isLoading) {
+    return (
+      <div className="container py-16 flex justify-center">
+        <div className="h-8 w-8 border-4 border-t-blue-500 border-blue-300/50 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+  
   if (!recipe) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <AlertCircle className="h-16 w-16 text-muted-foreground" />
-        <h2 className="text-2xl font-bold">Recipe not found</h2>
-        <p className="text-muted-foreground text-center max-w-md">
-          We couldn't find the recipe you're looking for. It may have been removed or the link might be incorrect.
-        </p>
-        <Button onClick={() => navigate(-1)}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Go Back
+      <div className="container py-16 text-center">
+        <h2 className="text-2xl font-bold mb-4">Recipe not found</h2>
+        <p className="text-muted-foreground mb-6">The recipe you're looking for doesn't exist or has been removed.</p>
+        <Button asChild>
+          <Link to="/"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Home</Link>
         </Button>
       </div>
     );
   }
 
-  const nutritionFacts = {
-    calories: "320",
-    fat: "12g",
-    carbs: "42g",
-    protein: "18g",
-    fiber: "4g",
-    sugar: "8g"
-  };
-
-  const cookingTips = [
-    "Marinate the meat overnight for deeper flavor",
-    "Use freshly ground spices for the best aroma",
-    "Toast the spices before adding them to enhance their flavors",
-    "Let the curry simmer on low heat for a richer taste"
-  ];
-
-  const recipeIngredients = mockRecipe 
-    ? (mockRecipe.ingredients?.length ? mockRecipe.ingredients : getDefaultIngredients(mockRecipe))
-    : indianRecipe?.ingredients || [];
-
-  const instructionSteps = indianRecipe ? 
-    indianRecipe.instructions.split("\n") : 
-    mockRecipe?.instructions?.map((instruction, i) => `${i+1}. ${instruction}`) || [];
-
-  const rating = 4.7;
-
-  const difficulty = "Medium";
-
-  const prepTime = indianRecipe ? 15 : 20;
-
-  const cookTime = indianRecipe ? indianRecipe.cooking_time : mockRecipe?.time?.replace(' min', '');
-  
-  const servings = indianRecipe?.servings || mockRecipe?.servings || 4;
-  
-  const imageSrc = indianRecipe 
-    ? getRecipeImage(indianRecipe.title, indianRecipe.category, indianRecipe.image_url)
-    : getRecipeImage(mockRecipe?.title || "", mockRecipe?.category || "", mockRecipe?.image || "");
-
-  const getDietType = (category: string) => {
-    const vegetarianCategories = ['Indian', 'Salads', 'Italian', 'Vegetarian'];
-    const dessertCategories = ['Desserts', 'Baking'];
-    
-    if (vegetarianCategories.includes(category)) {
-      return { label: 'Vegetarian', color: 'bg-green-100 text-green-700 border-green-200' };
-    } else if (dessertCategories.includes(category)) {
-      return { label: 'Dessert', color: 'bg-purple-100 text-purple-700 border-purple-200' };
-    } else {
-      return { label: 'Non-Vegetarian', color: 'bg-red-100 text-red-700 border-red-200' };
-    }
-  };
-
-  const dietType = getDietType(recipe.category);
-
   return (
-    <article className="max-w-6xl mx-auto space-y-6 px-4 py-6 md:space-y-8 md:py-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="flex items-center gap-2 self-start">
-          <ArrowLeft className="h-4 w-4" />
-          Back to recipes
+    <div className="container py-8 max-w-4xl mx-auto">
+      {/* Back button */}
+      <div className="mb-6">
+        <Button variant="ghost" onClick={() => navigate(-1)} className="group">
+          <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
+          Back
         </Button>
-        <div className="flex items-center gap-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className={`h-4 w-4 md:h-5 md:w-5 ${i < Math.floor(rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} />
-          ))}
-          <span className="text-sm font-medium">{rating} ({Math.floor(Math.random() * 500) + 100} reviews)</span>
-        </div>
       </div>
-
-      <div className="space-y-3 md:space-y-4">
-        <div className="flex flex-wrap gap-2">
-          <Badge className="font-poppins">{recipe.category}</Badge>
-          <Badge variant="outline" className={`font-poppins ${dietType.color}`}>
-            {dietType.label}
-          </Badge>
-          <Badge variant="outline" className="font-poppins">{difficulty} difficulty</Badge>
+      
+      {/* Recipe header */}
+      <div className="mb-8">
+        <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold">{recipe.title}</h1>
+          
+          {isOwner && (
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate(`/edit-recipe/${id}`)}
+                className="flex items-center"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </Button>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    className="flex items-center"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your
+                      recipe and all of its associated data.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleDeleteRecipe}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
         </div>
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight font-playfair">{recipe.title}</h1>
-        <p className="text-lg md:text-xl text-muted-foreground font-poppins">{recipe.description}</p>
         
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-3 sm:gap-6">
-          <div className="flex items-center gap-2">
-            <Timer className="h-5 w-5 text-orange-500" />
-            <div>
-              <span className="block text-sm font-semibold">Prep Time</span>
-              <span className="font-poppins text-sm">{prepTime} mins</span>
+        {/* Recipe meta */}
+        <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground mb-4">
+          {recipe.category && (
+            <div className="flex items-center">
+              <ChefHat className="mr-1 h-4 w-4" />
+              <span>{recipe.category}</span>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-orange-500" />
-            <div>
-              <span className="block text-sm font-semibold">Cook Time</span>
-              <span className="font-poppins text-sm">{cookTime} mins</span>
+          )}
+          
+          {recipe.cooking_time && (
+            <div className="flex items-center">
+              <Clock className="mr-1 h-4 w-4" />
+              <span>{recipe.cooking_time} minutes</span>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-orange-500" />
-            <div>
-              <span className="block text-sm font-semibold">Servings</span>
-              <span className="font-poppins text-sm">{servings} servings</span>
+          )}
+          
+          {recipe.difficulty && (
+            <div className="flex items-center">
+              <span className={`h-2 w-2 rounded-full mr-1 ${
+                recipe.difficulty === "easy" 
+                  ? "bg-green-500" 
+                  : recipe.difficulty === "medium" 
+                  ? "bg-yellow-500" 
+                  : "bg-red-500"
+              }`}></span>
+              <span className="capitalize">{recipe.difficulty} Difficulty</span>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <ChefHat className="h-5 w-5 text-orange-500" />
-            <div>
-              <span className="block text-sm font-semibold">Chef</span>
-              <span className="font-poppins text-sm">Professional</span>
+          )}
+          
+          {author && (
+            <div className="flex items-center">
+              <User className="mr-1 h-4 w-4" />
+              <span>By {author.username || 'Anonymous User'}</span>
             </div>
-          </div>
+          )}
         </div>
+        
+        {/* Description */}
+        {recipe.description && (
+          <p className="text-muted-foreground my-4">{recipe.description}</p>
+        )}
       </div>
-
-      <div className="aspect-video overflow-hidden rounded-xl shadow-md">
-        <img
-          src={imageSrc}
+      
+      {/* Recipe image */}
+      <div className="mb-8 overflow-hidden rounded-lg shadow-md">
+        <img 
+          src={recipe.image_url || '/placeholder.svg'} 
           alt={recipe.title}
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-          onError={(e) => {
-            e.currentTarget.src = getRecipeImage("", recipe.category, "");
-          }}
+          className="w-full h-auto object-cover max-h-[500px]"
         />
       </div>
-
-      <Tabs defaultValue="recipe" className="w-full">
-        <TabsList className="w-full justify-start mb-6 overflow-x-auto flex-nowrap">
-          <TabsTrigger value="recipe">Recipe</TabsTrigger>
-          <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
-          <TabsTrigger value="tips">Tips & Notes</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="recipe" className="space-y-6 md:space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            <Card className="p-4 md:p-6 space-y-4 h-auto">
-              <h2 className="text-xl md:text-2xl font-semibold font-playfair flex items-center gap-2">
-                <Utensils className="h-5 w-5 text-orange-500" />
-                Ingredients
-              </h2>
-              <ul className="space-y-2 md:space-y-3">
-                {indianRecipe 
-                  ? indianRecipe.ingredients.map((ingredient, index) => (
-                      <li key={index} className="flex items-center gap-2 font-poppins p-2 hover:bg-orange-50 rounded-md">
-                        <div className="h-2 w-2 rounded-full bg-orange-500 flex-shrink-0"></div>
-                        {ingredient.amount} {ingredient.unit} {ingredient.name}
-                      </li>
-                    ))
-                  : recipeIngredients.map((ingredient, index) => (
-                      <li key={index} className="flex items-center gap-2 font-poppins p-2 hover:bg-orange-50 rounded-md">
-                        <div className="h-2 w-2 rounded-full bg-orange-500 flex-shrink-0"></div>
-                        {ingredient}
-                      </li>
-                    ))
-                }
-              </ul>
-            </Card>
-
-            <Card className="p-4 md:p-6 space-y-4 h-auto">
-              <h2 className="text-xl md:text-2xl font-semibold font-playfair flex items-center gap-2">
-                <ChefHat className="h-5 w-5 text-orange-500" />
-                Instructions
-              </h2>
-              <ol className="space-y-3 md:space-y-4">
-                {instructionSteps.map((instruction, index) => (
-                  <li key={index} className="flex gap-3 md:gap-4 font-poppins group">
-                    <div className="flex-shrink-0 w-6 h-6 md:w-8 md:h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-semibold group-hover:bg-orange-500 group-hover:text-white transition-colors text-sm md:text-base">
-                      {index + 1}
-                    </div>
-                    <div className="pt-0.5 text-sm md:text-base">
-                      {instruction}
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </Card>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="nutrition" className="space-y-8">
-          <Card className="p-4 md:p-6">
-            <h2 className="text-xl md:text-2xl font-semibold font-playfair mb-4">Nutrition Facts</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-              {Object.entries(nutritionFacts).map(([key, value]) => (
-                <div key={key} className="p-3 md:p-4 border rounded-lg text-center">
-                  <p className="text-muted-foreground capitalize text-sm">{key}</p>
-                  <p className="text-xl md:text-2xl font-semibold">{value}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 text-xs md:text-sm text-muted-foreground">
-              <p>* Percent Daily Values are based on a 2,000 calorie diet. Your daily values may be higher or lower depending on your calorie needs.</p>
-            </div>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="tips" className="space-y-8">
-          <Card className="p-4 md:p-6">
-            <h2 className="text-xl md:text-2xl font-semibold font-playfair mb-4">Cooking Tips & Notes</h2>
-            <ul className="space-y-3">
-              {cookingTips.map((tip, index) => (
-                <li key={index} className="flex items-start gap-2 font-poppins p-2 hover:bg-orange-50 rounded-md">
-                  <div className="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-semibold text-xs md:text-sm">
-                    {index + 1}
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Ingredients column */}
+        <div className="md:col-span-1">
+          <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
+          
+          {ingredients.length > 0 ? (
+            <ul className="space-y-2">
+              {ingredients.map((ingredient) => (
+                <li key={ingredient.id} className="pb-2 border-b last:border-0">
+                  <div className="flex justify-between">
+                    <span className="font-medium">{ingredient.name}</span>
+                    <span>
+                      {ingredient.amount} {ingredient.unit}
+                    </span>
                   </div>
-                  <div className="pt-0.5 text-sm md:text-base">{tip}</div>
                 </li>
               ))}
             </ul>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      <Separator />
-
-      <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-3">
-        <Button onClick={handlePrint} variant="outline" className="flex-1 sm:flex-none font-poppins text-xs md:text-sm h-9 md:h-10">
-          <Printer className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
-          <span className="hidden xs:inline">Print Recipe</span>
-        </Button>
-        <Button onClick={handleShare} variant="outline" className="flex-1 sm:flex-none font-poppins text-xs md:text-sm h-9 md:h-10">
-          <Share2 className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
-          <span className="hidden xs:inline">Share Recipe</span>
-        </Button>
-        <Button onClick={handleSaveRecipe} variant="outline" className="flex-1 sm:flex-none font-poppins text-xs md:text-sm h-9 md:h-10">
-          <Bookmark className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
-          <span className="hidden xs:inline">Save Recipe</span>
-        </Button>
-        <Button onClick={handleLike} className="flex-1 sm:flex-none font-poppins bg-orange-500 hover:bg-orange-600 text-xs md:text-sm h-9 md:h-10">
-          <Heart className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
-          <span className="hidden xs:inline">Like Recipe</span>
-        </Button>
-      </div>
-
-      <div className="pt-6 md:pt-8">
-        <h2 className="text-xl md:text-2xl font-semibold font-playfair mb-4 md:mb-6">You Might Also Like</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-          {MOCK_RECIPES.slice(0, 3).map((relatedRecipe) => (
-            <Card key={relatedRecipe.id} className="overflow-hidden group cursor-pointer hover:shadow-md transition-all"
-                  onClick={() => navigate(`/recipe/${relatedRecipe.id}`)}>
-              <div className="aspect-video overflow-hidden">
-                <img
-                  src={getRecipeImage(relatedRecipe.title, relatedRecipe.category, relatedRecipe.image)}
-                  alt={relatedRecipe.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.src = getRecipeImage("", relatedRecipe.category, "");
-                  }}
-                />
-              </div>
-              <div className="p-3 md:p-4">
-                <Badge className="mb-2 text-xs">{relatedRecipe.category}</Badge>
-                <h3 className="font-bold text-base md:text-lg mb-1 line-clamp-1 group-hover:text-orange-500 transition-colors">
-                  {relatedRecipe.title}
-                </h3>
-                <div className="flex items-center text-xs md:text-sm text-muted-foreground">
-                  <Clock className="h-3 w-3 md:h-4 md:w-4 mr-1" />
-                  <span>{relatedRecipe.time}</span>
-                </div>
-              </div>
-            </Card>
-          ))}
+          ) : (
+            <p className="text-muted-foreground italic">No ingredients listed</p>
+          )}
+        </div>
+        
+        {/* Instructions column */}
+        <div className="md:col-span-2">
+          <h2 className="text-2xl font-semibold mb-4">Instructions</h2>
+          
+          <div className="prose prose-sm max-w-none dark:prose-invert">
+            {recipe.instructions.split("\n").map((paragraph, index) => (
+              <p key={index} className="mb-4">{paragraph}</p>
+            ))}
+          </div>
         </div>
       </div>
-    </article>
+    </div>
   );
 };
 
