@@ -75,6 +75,7 @@ const Signup = () => {
     try {
       setIsLoading(true);
       
+      console.log("Attempting to sign up with email:", data.email);
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -82,19 +83,36 @@ const Signup = () => {
           data: {
             name: data.name,
           },
+          // No email redirect needed since we're disabling email verification
           emailRedirectTo: undefined
         },
       });
 
       if (error) {
         console.error("Signup error:", error);
-        toast.error(error.message);
+        if (error.message.includes("already registered")) {
+          toast.error("This email is already registered. Please try logging in instead.");
+        } else {
+          toast.error(error.message);
+        }
         return;
       }
 
       if (authData.user) {
-        toast.success("Account created successfully! You can now log in.");
-        navigate("/login");
+        // Immediately try to log in the user after successful signup
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        });
+        
+        if (signInError) {
+          console.error("Auto login error:", signInError);
+          toast.success("Account created successfully! You can now log in.");
+          navigate("/login");
+        } else {
+          toast.success("Account created and logged in successfully!");
+          navigate("/");
+        }
       }
     } catch (error) {
       console.error("Signup error:", error);
@@ -114,7 +132,7 @@ const Signup = () => {
             </div>
             <CardTitle className="text-3xl font-bold text-center">Create your account</CardTitle>
             <CardDescription className="text-center text-base">
-              Enter your information to get started with RecipeHaven
+              Enter your information to get started with CulinaryDelight
             </CardDescription>
           </div>
         </CardHeader>

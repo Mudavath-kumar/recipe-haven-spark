@@ -65,6 +65,7 @@ const Login = () => {
     try {
       setIsLoading(true);
       
+      console.log("Attempting login with:", data.email);
       const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
@@ -72,7 +73,15 @@ const Login = () => {
 
       if (error) {
         console.error("Authentication error:", error);
-        toast.error(error.message);
+        
+        // Better error messages based on error type
+        if (error.message.includes("Invalid login")) {
+          toast.error("Invalid email or password. Please check your credentials and try again.");
+        } else if (error.message.includes("Email not confirmed")) {
+          toast.error("Please verify your email before logging in.");
+        } else {
+          toast.error(error.message);
+        }
         return;
       }
 
