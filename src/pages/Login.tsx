@@ -65,16 +65,19 @@ const Login = () => {
     try {
       setIsLoading(true);
       
-      console.log("Attempting login with:", data.email);
+      // Add detailed logging to trace the authentication flow
+      console.log("Starting login process with email:", data.email);
+      
+      // Try to sign in with the provided credentials
       const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
       if (error) {
-        console.error("Authentication error:", error);
+        console.error("Authentication error details:", error);
         
-        // Better error messages based on error type
+        // Improved error messages with more specific guidance
         if (error.message.includes("Invalid login")) {
           toast.error("Invalid email or password. Please check your credentials and try again.");
         } else if (error.message.includes("Email not confirmed")) {
@@ -86,11 +89,16 @@ const Login = () => {
       }
 
       if (authData.user) {
+        console.log("Login successful for user:", authData.user.id);
         toast.success("Login successful!");
         navigate("/");
+      } else {
+        // This shouldn't happen normally, but just in case
+        console.error("No error but authData.user is null:", authData);
+        toast.error("Something went wrong. Please try again.");
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Unexpected login error:", error);
       toast.error("An unexpected error occurred during login");
     } finally {
       setIsLoading(false);
