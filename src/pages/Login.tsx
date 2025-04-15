@@ -1,6 +1,6 @@
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -9,101 +9,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Link, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { supabase } from "@/integrations/supabase/client";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
-import { EyeIcon, EyeOffIcon, KeyIcon, MailIcon } from "lucide-react";
-
-const loginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  rememberMe: z.boolean().default(false),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
+import { KeyIcon } from "lucide-react";
+import { LoginForm } from "@/components/auth/LoginForm";
+import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const { checkSession } = useAuth();
   
   // Check if user is already logged in
   useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
+    const verifySession = async () => {
+      const session = await checkSession();
+      if (session) {
         navigate("/");
       }
     };
     
-    checkSession();
-  }, [navigate]);
-  
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      rememberMe: false,
-    },
-  });
-
-  const onSubmit = async (data: LoginFormValues) => {
-    try {
-      setIsLoading(true);
-      
-      // Add detailed logging to trace the authentication flow
-      console.log("Starting login process with email:", data.email);
-      
-      // Try to sign in with the provided credentials
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (error) {
-        console.error("Authentication error details:", error);
-        
-        // Improved error messages with more specific guidance
-        if (error.message.includes("Invalid login")) {
-          toast.error("Invalid email or password. Please check your credentials and try again.");
-        } else if (error.message.includes("Email not confirmed")) {
-          toast.error("Please verify your email before logging in.");
-        } else {
-          toast.error(error.message);
-        }
-        return;
-      }
-
-      if (authData.user) {
-        console.log("Login successful for user:", authData.user.id);
-        toast.success("Login successful!");
-        navigate("/");
-      } else {
-        // This shouldn't happen normally, but just in case
-        console.error("No error but authData.user is null:", authData);
-        toast.error("Something went wrong. Please try again.");
-      }
-    } catch (error) {
-      console.error("Unexpected login error:", error);
-      toast.error("An unexpected error occurred during login");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    verifySession();
+  }, [navigate, checkSession]);
 
   return (
     <div className="flex items-center justify-center min-h-[80vh] bg-gradient-to-b from-blue-50 to-white dark:from-blue-950 dark:to-gray-950 px-4">
@@ -120,97 +44,7 @@ const Login = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <div className="relative">
-                      <MailIcon className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                      <FormControl>
-                        <Input 
-                          placeholder="your.email@example.com" 
-                          className="pl-10" 
-                          {...field} 
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <div className="relative">
-                      <KeyIcon className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                      <FormControl>
-                        <Input 
-                          type={showPassword ? "text" : "password"} 
-                          placeholder="••••••••" 
-                          className="pl-10"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOffIcon className="h-5 w-5 text-muted-foreground" />
-                        ) : (
-                          <EyeIcon className="h-5 w-5 text-muted-foreground" />
-                        )}
-                      </Button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex items-center justify-between">
-                <FormField
-                  control={form.control}
-                  name="rememberMe"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="text-sm font-medium cursor-pointer">
-                        Remember me
-                      </FormLabel>
-                    </FormItem>
-                  )}
-                />
-                
-                <Link to="/forgot-password" className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline">
-                  Forgot password?
-                </Link>
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full mt-6 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
-                disabled={isLoading}
-              >
-                {isLoading ? "Signing in..." : "Sign In"}
-              </Button>
-            </form>
-          </Form>
+          <LoginForm />
         </CardContent>
         <CardFooter className="flex flex-col space-y-4 border-t pt-6">
           <div className="text-sm text-center text-muted-foreground">
