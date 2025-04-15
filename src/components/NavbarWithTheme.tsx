@@ -14,7 +14,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ChefHat, Search, User, LogOut, LogIn, Plus, List, Calculator } from "lucide-react";
+import { ChefHat, Search, User, LogOut, LogIn, Plus, List } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
 
 interface NavbarWithThemeProps {
@@ -73,9 +73,6 @@ export const NavbarWithTheme = ({ session }: NavbarWithThemeProps) => {
             </Link>
             <Link to="/food-videos" className="text-sm font-medium hover:text-recipe-700 dark:hover:text-recipe-400 transition-colors">
               Videos
-            </Link>
-            <Link to="/calculator" className="text-sm font-medium hover:text-recipe-700 dark:hover:text-recipe-400 transition-colors">
-              Calculator
             </Link>
           </div>
         </div>
@@ -143,13 +140,6 @@ export const NavbarWithTheme = ({ session }: NavbarWithThemeProps) => {
                   </DropdownMenuItem>
                 </>
               )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/calculator" className="flex items-center gap-2 cursor-pointer">
-                  <Calculator className="h-4 w-4" />
-                  <span>Calculator</span>
-                </Link>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

@@ -82,6 +82,7 @@ const Signup = () => {
           data: {
             name: data.name,
           },
+          emailRedirectTo: undefined
         },
       });
 
@@ -92,7 +93,7 @@ const Signup = () => {
       }
 
       if (authData.user) {
-        toast.success("Account created successfully! Please check your email to verify your account.");
+        toast.success("Account created successfully! You can now log in.");
         navigate("/login");
       }
     } catch (error) {
