@@ -33,7 +33,13 @@ export const useAuth = () => {
 
       if (error) {
         console.error("Authentication error details:", error);
-        toast.error("Invalid email or password. Please check your credentials and try again.");
+        
+        // Show specific error message based on error code
+        if (error.message.includes("Email not confirmed")) {
+          toast.error("Please verify your email before logging in. Check your inbox for a confirmation link.");
+        } else {
+          toast.error("Invalid email or password. Please check your credentials and try again.");
+        }
         return false;
       }
 
@@ -62,10 +68,7 @@ export const useAuth = () => {
       
       console.log("Starting signup process with email:", data.email);
       
-      // We shouldn't need to check if the user exists first since Supabase will return an appropriate error
-      // if the user already exists. Removing the separate check resolves the TypeScript error.
-      
-      // Create user with Supabase auth without email confirmation
+      // Create user with Supabase auth
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -73,7 +76,6 @@ export const useAuth = () => {
           data: {
             name: data.name,
           },
-          emailRedirectTo: null,
         },
       });
 
@@ -90,10 +92,17 @@ export const useAuth = () => {
       if (authData && authData.user) {
         console.log("Account created successfully. User:", authData.user.id);
         
-        // Immediately log the user in after signup
-        toast.success("Account created successfully!");
-        navigate("/");
-        return true;
+        if (authData.session) {
+          // User is automatically logged in (email verification not required)
+          toast.success("Account created successfully!");
+          navigate("/");
+          return true;
+        } else {
+          // Email verification required
+          toast.success("Account created! Please check your email to verify your account before logging in.");
+          navigate("/login");
+          return true;
+        }
       } else {
         console.error("No error but authData.user is null:", authData);
         toast.error("Something went wrong during account creation. Please try again.");
