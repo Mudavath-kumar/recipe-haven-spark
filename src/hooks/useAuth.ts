@@ -33,7 +33,7 @@ export const useAuth = () => {
 
       if (error) {
         console.error("Authentication error details:", error);
-        toast.error("Invalid email or password. Please check your credentials and try again.");
+        toast.error("Login failed. Please check your email and password.");
         return false;
       }
 
@@ -62,7 +62,7 @@ export const useAuth = () => {
       
       console.log("Starting signup process with email:", data.email);
       
-      // Create user with Supabase auth and automatically sign them in
+      // Simple signup that automatically signs the user in
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -70,31 +70,23 @@ export const useAuth = () => {
           data: {
             name: data.name,
           },
-          // Disable email verification by not redirecting
-          emailRedirectTo: window.location.origin,
         },
       });
 
       if (error) {
         console.error("Signup error details:", error);
-        if (error.message.includes("already registered")) {
-          toast.error("This email is already registered. Please try logging in instead.");
-        } else {
-          toast.error(error.message);
-        }
+        toast.error(error.message);
         return false;
       }
 
       if (authData && authData.user) {
         console.log("Account created successfully. User:", authData.user.id);
-        
-        // User is automatically signed in after signup
         toast.success("Account created successfully!");
         navigate("/");
         return true;
       } else {
         console.error("No error but authData.user is null:", authData);
-        toast.error("Something went wrong during account creation. Please try again.");
+        toast.error("Something went wrong during signup. Please try again.");
         return false;
       }
     } catch (error) {

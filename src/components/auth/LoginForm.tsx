@@ -20,7 +20,7 @@ import { AuthSignInData, useAuth } from "@/hooks/useAuth";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  password: z.string().min(1, { message: "Password is required" }),
   rememberMe: z.boolean().default(false),
 });
 
@@ -40,6 +40,7 @@ export const LoginForm = () => {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
+    console.log("Form submitted with data:", { email: data.email, password: "***" });
     await signIn(data as AuthSignInData);
   };
 
