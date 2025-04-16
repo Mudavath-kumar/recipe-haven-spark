@@ -34,13 +34,8 @@ export const useAuth = () => {
       if (error) {
         console.error("Authentication error details:", error);
         
-        if (error.message.includes("Invalid login")) {
-          toast.error("Invalid email or password. Please check your credentials and try again.");
-        } else if (error.message.includes("Email not confirmed")) {
-          toast.error("Please verify your email before logging in.");
-        } else {
-          toast.error(error.message);
-        }
+        // Simplified error handling
+        toast.error(error.message || "Login failed. Please check your credentials and try again.");
         return false;
       }
 
@@ -69,6 +64,7 @@ export const useAuth = () => {
       
       console.log("Starting signup process with email:", data.email);
       
+      // Sign up without email confirmation
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -76,7 +72,7 @@ export const useAuth = () => {
           data: {
             name: data.name,
           },
-          emailRedirectTo: undefined
+          // No email redirect - bypassing confirmation
         },
       });
 
@@ -93,7 +89,7 @@ export const useAuth = () => {
       if (authData.user) {
         console.log("Account created successfully. User:", authData.user.id);
         
-        console.log("Attempting automatic login after signup");
+        // Automatically sign in after signup
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: data.email,
           password: data.password,
@@ -101,14 +97,15 @@ export const useAuth = () => {
         
         if (signInError) {
           console.error("Auto login error details:", signInError);
-          toast.success("Account created successfully! Please log in with your credentials.");
+          toast.error("Account created but couldn't log in automatically. Please log in manually.");
           navigate("/login");
+          return true;
         } else {
           console.log("Auto login successful. Session:", signInData.session?.user.id);
           toast.success("Account created and logged in successfully!");
           navigate("/");
+          return true;
         }
-        return true;
       } else {
         console.error("No error but authData.user is null:", authData);
         toast.error("Something went wrong during account creation. Please try again.");
