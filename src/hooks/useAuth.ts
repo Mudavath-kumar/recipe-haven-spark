@@ -62,14 +62,19 @@ export const useAuth = () => {
       
       console.log("Starting signup process with email:", data.email);
       
-      // First, check if user already exists to provide better feedback
-      const { data: existingUser, error: checkError } = await supabase
+      // Check if user already exists by email - fixed the query to avoid excessive type instantiation
+      const { data: existingUsers, error: checkError } = await supabase
         .from('profiles')
-        .select()
+        .select('id')
         .eq('email', data.email)
-        .single();
+        .limit(1);
       
-      if (existingUser) {
+      if (checkError) {
+        console.error("Error checking existing user:", checkError);
+      }
+      
+      // If we found any users with this email, prevent signup
+      if (existingUsers && existingUsers.length > 0) {
         toast.error("This email is already registered. Please try logging in instead.");
         return false;
       }
