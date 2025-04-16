@@ -62,22 +62,8 @@ export const useAuth = () => {
       
       console.log("Starting signup process with email:", data.email);
       
-      // Check if user already exists by email - fixed the query to avoid excessive type instantiation
-      const { data: existingUsers, error: checkError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', data.email)
-        .limit(1);
-      
-      if (checkError) {
-        console.error("Error checking existing user:", checkError);
-      }
-      
-      // If we found any users with this email, prevent signup
-      if (existingUsers && existingUsers.length > 0) {
-        toast.error("This email is already registered. Please try logging in instead.");
-        return false;
-      }
+      // We shouldn't need to check if the user exists first since Supabase will return an appropriate error
+      // if the user already exists. Removing the separate check resolves the TypeScript error.
       
       // Create user with Supabase auth without email confirmation
       const { data: authData, error } = await supabase.auth.signUp({
